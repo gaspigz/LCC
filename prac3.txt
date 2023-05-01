@@ -65,7 +65,6 @@
   [to-draw interpretar]
   [on-key manejaTeclado]
   [on-tick manejaReloj 2] ;Cada dos segundos ejecuta manejaReloj
-  [stop-when 
   )
 
 
@@ -100,4 +99,76 @@ radio 100 el cual vaya disminuyendo su tamaño con el paso del tiempo
   [on-key keyHandler]
   [on-tick clockHandler]
   [stop-when stopHandler interpretar] ;interpretar funciona como la funcion que se hace cuando termina
+  )
+
+
+#|8)
+En este ejercicio agregaremos estrellas a un cielo vacío. El
+estado del sistema será una imagen, nuestro cielo, sobre la cual
+incorporaremos las estrellas que vayamos dibujando. Defina constantes
+para representar el color, el ancho y el alto de la escena, así como
+también el color y el tamaño de las estrellas. Genere una expresión
+big-bang tal que:
+• El estado inicial del sistema sea FONDO (el cielo vacío).
+• La función que responde a la cláusula to-draw dibuje el estado
+actual.
+• Al clickear sobre el cielo, se dibuje una estrella donde se realizó el
+click, respetando el tamaño y el color definidos previamente.
+• Puede suceder que una estrella no entre completamente en la
+escena. Modifique sus funciones para que ésto no ocurra, es decir
+que una estrella se grafique sólo si va a entrar completamente en el
+cielo. Caso contrario, la imagen no debe modificarse.
+• Si se presiona backspace, todas las estrellas deben desaparecer, es
+decir, el cielo debe volver al estado inicial.
+• Por último, modifique sus funciones para que el tamaño de las
+estrellas varíe de acuerdo a la posición donde se produjo el click,
+cuanto más a la izquierda sea, más pequeñas deben ser.
+|#
+(define ANCHO 600)
+(define ALTO 600)
+(define (REST x) (+ 30 (/ x 10)))
+
+(define CCielo "black")
+(define CEst "white")
+(define EstiloEstrella "solid")
+
+(define (ESTRELLA l) (star l EstiloEstrella CEst))
+
+(define FONDO (
+               empty-scene ANCHO ALTO CCielo)
+  )
+
+(define (checklimites x y )
+  (cond
+    [(< x (REST x)) #false]
+    [(< y (REST x)) #false]
+    [(> x (- 600 (REST x))) #false]
+    [(> y (- 600 (REST x))) #false]
+    [else #true]
+   )
+  )
+
+
+(define (dibuja r x y)
+  (cond [(checklimites x y) ( place-image (ESTRELLA (REST x)) x y r)]
+        [else r])
+)
+
+
+(define (interpretar r) r)
+
+(define (mouseHandler r x y event) (
+                   if (string=? event "button-down") (
+                      dibuja r x y  
+                                                       ) r
+                    
+         )
+)
+
+(define (keyHandler r key) (cond [(string=? key "r") FONDO]))
+
+(big-bang FONDO
+  [to-draw interpretar]
+  [on-mouse mouseHandler]
+  [on-key keyHandler]
   )
