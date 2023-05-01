@@ -1,0 +1,103 @@
+(big-bang <estado_inicial>
+	[<evento> <manejador_evento>]
+	[to-draw <controlador_de_pantalla>]
+	[on-key <manejador_de_teclado>]
+	[on-mouse <manejador_de_mouse>]
+	[on-tick <manejador_de_reloj>]
+	...
+	[stop-when <predeterminado fin de ejecucion>]
+	
+; Cuando se presiona el 0 se muestra un circulo, si se presiona 1 un cuadrado y si se pone el 2 un triangulo. Arracna con circulo.
+; Que vaya cambiando constantemente en este orden: circulo, cuadrado, triangulo.
+; Si se presiona la letra x se para el programa y muestra CHAU
+; OBSERVACION: Las funciones de manejo de to-draw siempre toman un estado y devuelven una funcion, el estado se pasa solo y no por parametros.
+
+; Cuando se presiona el 0 se muestra un circulo, si se presiona 1 un cuadrado y si se pone el 2 un triangulo. Arracna con circulo.
+; Que vaya cambiando constantemente en este orden: circulo, cuadrado, triangulo.
+; Si se presiona la letra x se para el programa y muestra CHAU
+;Estado es String
+
+(define EINICIAL "c")
+(define ALTO 400)
+(define ANCHO 400)
+(define ESCENA (empty-scene ALTO ANCHO "black"))
+(define TAM 100)
+(define TRIANGULO (triangle TAM "solid" "green"))
+(define CUADRADO (square TAM "solid" "red"))
+(define CIRCULO (circle (/ TAM 2) "solid" "yellow"))
+(define BOLUDO .)
+
+(define (dibujar e) (
+                     cond
+                       [(string=? e "t") TRIANGULO]
+                       [(string=? e "q") CUADRADO]
+                       [(string=? e "c") CIRCULO]
+                       [(string=? e "b") BOLUDO]
+                       
+                     )
+  )
+;interpretar: Estado -> String
+(define (interpretar e) 
+           (place-image (dibujar e) (/ ALTO 2) (/ ANCHO 2)
+                        ESCENA)
+         
+  )
+
+;manejaTeclado: Estado String -> Estado
+;check-expect toma una funcion y un resultado esperado
+
+(define (manejaTeclado e tecla) (cond
+                       [(string=? tecla "t") "t"]
+                       [(string=? tecla "q") "q"]
+                       [(string=? tecla "c") "c"]
+                       [(string=? tecla "b") "b"]
+                       [else e]))
+
+(check-expect (manejaTeclado "q" "q") "q")
+(check-expect (manejaTeclado "c" "q") "q")
+(check-expect (manejaTeclado "q" "c") "c")
+(check-expect (manejaTeclado "h" "c") "c")
+
+;manejaReloj Estado -> Estado
+(define (manejaReloj e)
+
+(big-bang EINICIAL
+  [to-draw interpretar]
+  [on-key manejaTeclado]
+  [on-tick manejaReloj 2] ;Cada dos segundos ejecuta manejaReloj
+  [stop-when 
+  )
+
+
+;;Practica 3
+#|2) Escriba un programa que dibuje un círculo color azul de
+radio 100 el cual vaya disminuyendo su tamaño con el paso del tiempo
+(es decir, con cada tick del reloj). Reiniciar con r y finalizar con s.
+|#
+(require 2htdp/image)
+(define RAD_INICIAL 100)
+(define (CIRCULO r) (circle r "solid" "blue"))
+
+(define (interpretar r) (
+                         place-image (CIRCULO r) 150 150 (empty-scene 300 300)
+                         ))
+
+(define (clockHandler r) (
+                          cond [(= r 0) 100]
+                               [else (- r 1)]
+                          ))
+
+(define (keyHandler r tecla) (
+                               cond [(string=? tecla "r") 100]
+                                    [(string=? tecla "s") 150]
+                                    [else r]
+                               ))
+
+(define (stopHandler r) (= r 150))
+
+(big-bang RAD_INICIAL
+  [to-draw interpretar]
+  [on-key keyHandler]
+  [on-tick clockHandler]
+  [stop-when stopHandler interpretar] ;interpretar funciona como la funcion que se hace cuando termina
+  )

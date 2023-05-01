@@ -1,0 +1,10 @@
+(define-struct Nombre (campo1 campo2 campo3 ...))
+
+(define-struct Nota (nombre p1 p2 prom))
+(define NotaGaspar (make-Nota "Gaspar" 10 10 10))
+(Nota-nombre NotaGaspar)
+(Nota-p1 NotaGaspar)
+(Nota-p2 NotaGaspar)
+(Nota-prom NotaGaspar)
+(Nota? NotaGaspar)	
+

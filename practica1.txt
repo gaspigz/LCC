@@ -1,0 +1,68 @@
+; autonomía: Number -> Number -> String
+(define (autonomia litros clase)
+  (cond
+    [(= clase 2) (string-append "Autonomia en ciudad:" (number->string (* 8 litros)) "km Autonomia en ruta:" (number->string (* 11 litros))"km")  ]
+    [(not(= clase 2)) (string-append "Autonomia en ciudad:" (number->string (* (* 8 litros) 1.1)) "km Autonomia en ruta:" (number->string (* (* 11 litros) 1.1))"km")]
+   ))
+   
+   
+   
+ (define PERU
+  (place-image (rectangle 30 60 "solid" "red") 15 30 (place-image (rectangle 30 60 "solid" "red") 75 30
+               (empty-scene 90 60)
+  ))
+ )
+
+(define ALEMANIA
+  (place-image (rectangle 90 20 "solid" "black") 45 10 (place-image (rectangle 90 20 "solid" "red") 45 30 (place-image (rectangle 90 20 "solid" "yellow") 45 50
+               (empty-scene 90 60)
+   )))
+  )
+(define HOLANDA
+  (place-image (rectangle 90 20 "solid" "red") 45 10 (place-image (rectangle 90 20 "solid" "white") 45 30 (place-image (rectangle 90 20 "solid" "blue") 45 50
+               (empty-scene 90 60)
+   )))
+  )
+
+(define (crea-banderas c1 c2 c3) (
+           place-image (rectangle 90 20 "solid" c1) 45 10 (place-image (rectangle 90 20 "solid" c2) 45 30 (place-image (rectangle 90 20 "solid" c3) 45 50
+               (empty-scene 90 60)
+            ))
+  
+         )
+ )
+
+(define (crea-banderas2 sentido c1 c2 c3) (
+           cond
+             [(string=? sentido "horizontal") (place-image (rectangle 90 20 "solid" c1) 45 10 (place-image (rectangle 90 20 "solid" c2) 45 30 (place-image (rectangle 90 20 "solid" c3) 45 50
+               (empty-scene 90 60)
+            )))]
+             [(string=? sentido "vertical") (place-image (rectangle 30 60 "solid" c1) 15 30 (place-image (rectangle 30 60 "solid" c2) 45 30 (place-image (rectangle 30 60 "solid" c3) 75 30
+               (empty-scene 90 60)
+             )))]
+           
+  
+         
+ )
+  )
+
+(define (ESTRELLA c1 posx posy)
+  
+  (place-image (star 10 "solid" c1) (* 90 posx) (* 60 posy)
+                     (empty-scene 90 60)
+  )
+)
+
+(define TRIANGULO
+  (place-image (rotate 90 (isosceles-triangle 40 100 "solid" "red")) 100 100
+               (empty-scene 200 200)))
+
+
+(define BRASIL
+  (place-image (star 70 "outline" "white") 450 300
+               (place-image (circle 100 "solid" "blue") 450 300
+                            (place-image (rotate 90 (isosceles-triangle 450 450"solid" "yellow")) 300 300
+                            (place-image (rotate 270 (isosceles-triangle 450 450"solid" "yellow")) 600 300
+                                         (place-image (rectangle 900 600 "solid" "green") 450 300
+                                                      (empty-scene 900 600)))))))
+  
