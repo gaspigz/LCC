@@ -172,3 +172,78 @@ cuanto más a la izquierda sea, más pequeñas deben ser.
   [on-mouse mouseHandler]
   [on-key keyHandler]
   )
+  
+  
+#|Ejercicio 10. Busque en internet dos imágenes de huellas, un pie
+derecho y un pie izquierdo.
+Defina estas imágenes como dos constantes
+PIEDER Y PIEIZQ, respectivamente.
+Se pide escribir un programa que simule una persona caminando que
+avance en línea recta de izquierda a derecha o de derecha a izquierda
+sobre una imagen vacía, a razón de un número impar de píxeles con
+cada tick del reloj.
+Tener en cuenta la orientación de las huellas según
+el sentido en que se avanza. Si llega a un extremo de la escena se
+considera que la persona gira y se dirige hacia el otro extremo.
+El estado del programa interactivo guardará la posicion central del pie
+que se encuentre apoyado en un momento dado.
+
+Se arranca con un pie apoyado mirando hacia la derecha. El pie que se dibuja sera el
+izquierdo si el estado es par o el derecho si es impar. Los pies deben
+aparecer enteros, no se permite una huella cortada.
+Defina todas las constantes que considere necesarias. Modifique el
+programa para que:
+• al presionar la barra espaciadora, vuelva la huella a la posición
+inicial,
+• al hacer click sobre la imagen, se dibuje una huella en la
+coordenada horizontal donde se produjo el evento (dependiendo de
+la paridad se debera dibujar uno u otro pie)
+|#
+
+(define PIEIZQ (rotate 270 .))
+(define PIEDER (rotate 270 .))
+
+(define ANCHO 1400)
+(define ALTO 400)
+
+(define SCN (empty-scene ANCHO ALTO))
+
+(define (pies x1 x2 s) (
+                        if (= s 1) (place-image PIEDER x1 300 (place-image PIEIZQ x2 100  SCN)) (place-image (rotate 180 PIEDER) x1 100 (place-image (rotate 180 PIEIZQ) x2 300  SCN))
+                            
+                        )
+  );SI S ES TRUE AVANZA
+
+(define (dibujar e) (
+                     cond
+                      [(= 100 e) (pies 100 -100 1)]
+                      [(< e (- ANCHO 100)) (if (odd? e) (pies e (- e 95) 1) (pies (- e 95) e 1))]
+                      [(> e (+ ANCHO 100)) (if (odd? e)
+                                                (pies (- (- ANCHO 100) (- e (+ ANCHO 100))) (+ 95 (- (- ANCHO 100) (- e (+ ANCHO 100)))) 0)
+                                                (pies (+ 95 (- (- ANCHO 100) (- e (+ ANCHO 100)))) (- (- ANCHO 100) (- e (+ ANCHO 100))) 0))]
+                      [else (pies (- (- ANCHO 100) (- e ANCHO)) (- (- ANCHO 100) (- e ANCHO)) 0)]
+                      ;[else (pies e e 0)]
+                     )
+  )
+
+(define (caminar e ) (cond
+                       [(< e (- (* 2 ANCHO) 200)) (+ 95 e)]
+                       [(and (>= e (- ANCHO 100)) (< e (+ ANCHO 100))) (+ ANCHO 100)]
+                       [else 100]
+                       )
+                     )
+
+#|
+(cond
+                       [(= (modulo e 2) 0) ()]
+                       [else ()]
+                       )
+|#
+
+(big-bang 100
+
+  [to-draw dibujar]
+  [on-tick caminar 0.2]
+  
+  )
+
