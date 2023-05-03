@@ -101,6 +101,99 @@ radio 100 el cual vaya disminuyendo su tamaño con el paso del tiempo
   [stop-when stopHandler interpretar] ;interpretar funciona como la funcion que se hace cuando termina
   )
 
+#|
+Ejercicio 5. Este programa comienza con el fondo de color blanco y un
+círculo en el centro de la escena. A medida que pasen los ticks del reloj
+irá cambiando el color del círculo central. Pasará por los siguientes
+colores: amarillo, rojo, verde y azul, en el orden presentado.
+
+El estado del sistema guardará el color del círculo central de la escena.
+
+Defina constantes para representar el ancho y el alto de la escena, así
+como el color de fondo.
+Defina cualquier otra constante que considere
+necesaria (por ejemplo, el tamaño del círculo a dibujar).
+
+La expresión big-bang deberá comportarse de manera tal que:
+ 1. El estado inicial del sistema sea: color amarillo.
+ 2. La función que responde a la cláusula to-draw debe dibujar el
+  círculo del color indicado en el estado en el centro de la escena.
+ 3. Cada tick del reloj modifica el color guardado en el estado. Dicho
+  estado debe respetar la siguiente secuencia: amarillo, rojo, verde,
+  azul y vuelve a comenzar la secuencia pasando al amarillo.
+|#
+
+(define ANCHO 800)
+(define ALTO 800)
+(define RADIO 150)
+(define FONDO "white")
+(define EINICIAL "yellow")
+(define SCN (empty-scene ANCHO ALTO FONDO))
+;CIRCULO string -> circle
+(define (CIRCULO c) (circle RADIO "solid" c))
+
+(define (mainController e) (place-image (CIRCULO e) 400 400 SCN))
+
+(define (clockController e) (cond
+                              [(string=? e "yellow") "red"]
+                              [(string=? e "red") "green"]
+                              [(string=? e "green") "blue"]
+                              [else "yellow"]
+                              )
+  )
+
+(big-bang EINICIAL
+  [to-draw mainController]
+  [on-tick clockController 0.5]
+  )
+
+#|
+Se pide
+crear una expresión big-bang cuyo estado sea una cadena de
+caracteres, y que funcione de la siguiente forma:
+• Inicialmente, esta cadena es ""
+• La función asociada a la cláusuda to-draw debe imprimir la cadena
+ en pantalla como una imagen, con fuente de 20 píxeles de alto,
+ alineada a la izquierda y de color índigo, en una escena vacía de
+ 800 por 60. Sugerencia: mire arriba.
+ Cada vez que se presiona una letra o número, este caracter se agrega al estado
+ actual.
+• Por último,
+ agregaremos a nuestro mini-editor la posibilidad de borrar caracteres con la tecla
+ backspace.
+ En caso de presionarla, el manejador del evento debe
+ remover del estado el último caracter agregado. Es decir, el efecto
+ obtenido es el mismo que en cualquier editor de texto. Ayuda: la
+ tecla backspace se codifica mediante la cadena "\b".
+Por ahora es suficiente con estas características para el editor. En
+ prácticas siguientes iremos mejorándolo, hasta crear algo que pueda
+ llamarse, sin avergonzarnos, editor de texto.
+
+
+(place-image/align (text "Arriba a la izqu" 25 "red")
+                   0 0 "left" "top" (place-image/align (text "Arriba a la izquierda" 25 "indigo")
+                   0 0 "left" "top" (empty-scene 800 60)))
+|#
+
+(define EINICIAL "")
+(define ANCHO 800)
+(define ALTO 60)
+(define TAMANIO_LETRA 20)
+(define COLOR_LETRA "black")
+(define SCN (empty-scene 800 60))
+(define (TEXTO str tam col) (text str tam col))
+
+(define (mainCtrl e) (place-image/align (TEXTO e TAMANIO_LETRA COLOR_LETRA) 0 0 "left" "top" SCN))
+
+(define (keyCtrl e key) (cond
+                          [(string=? key "\b") (substring e 0 (- (string-length e) 1))]
+                          ;[(string=? key "\b") (substring e 0 (- (string-length e) 1))]
+                          [else (string-append e key)]))
+
+(big-bang EINICIAL
+  [to-draw mainCtrl]
+  [on-key keyCtrl]
+  )
 
 #|8)
 En este ejercicio agregaremos estrellas a un cielo vacío. El
