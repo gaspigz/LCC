@@ -266,6 +266,93 @@ cuanto más a la izquierda sea, más pequeñas deben ser.
   [on-key keyHandler]
   )
   
+
+#|
+Ejercicio 9.
+En este ejercicio dibujaremos un objeto sobre una escena.
+Los posibles objetos a dibujar son un círculo o un triángulo, y estos
+pueden ser de color azul o verde.
+Para representar el estado utilizaremos un string, con la convención de que la primera letra
+representa la figura a dibujar ("t" o "c"), y la segunda letra el color de
+la figura ("a" o "v").
+Por lo tanto, si queremos dibujar un círculo azul, el estado que lo
+representa será "ca". Deténgase y piense ¿Cuántos estados hay? ¿Qué
+string representa a cada uno de ellos?
+Defina constantes para representar el ancho y el alto de la escena, así
+como el color de fondo.
+Defina cualquier otra constante que considere necesaria. Por ejemplo, la dimensión del objeto a dibujar.
+
+La expresión big-bang deberá comportarse de la siguiente forma:
+ 1. El estado inicial representa un triángulo verde. OK
+ 2. La función que responde a la cláusula to-draw debe dibujar la figura
+  indicada en el estado en una posición aleatoria. OK No se preocupe si la
+  figura no cabe íntegramente en la escena. Sin embargo, la
+  coordenada del centro del objeto sí debe estar dentro de la escena.
+ 3. Si se presiona la tecla "t", la figura a dibujar debe pasar a ser un
+  triángulo, manteniendo el color actual. Al presionar la "c", la figura
+  pasa a ser un círculo, también conservando su color. No se preocupe
+  si el objeto se mueve al presionar una tecla, aunque no cambie la
+  forma.
+ 4. Cada 1 segundo la figura debe cambiar de color, alternando entre
+  azul y verde.
+  Recuerde diseñar todas las funciones que defina, y que en aquellas
+  funciones que devuelven imágenes puede omitir los casos de test si así
+  lo desea.
+|#
+
+(define ANCHO 800)
+(define ALTO 800)
+(define ESCENA (empty-scene ANCHO ALTO))
+(define SEGUNDOS_RELOJ 1)
+(define (CENTRO num) (random num))
+
+;CIRCULO String -> Image
+(define (CIRCULO color) (circle 150 "solid" color))
+;TRIANGULO String -> Image
+(define (TRIANGULO color) (triangle 300 "solid" color))
+;Hay 4 estados posibles: tv, ta, cv y ca
+(define EINICIAL "tv")
+
+;interpretar String -> Image
+(define (interpretar e) (
+                         cond
+                          [(string=? e "tv") (place-image (TRIANGULO "green") (CENTRO ANCHO) (CENTRO ANCHO) ESCENA)]
+                          [(string=? e "ta") (place-image (TRIANGULO "blue") (CENTRO ANCHO) (CENTRO ANCHO) ESCENA)]
+                          [(string=? e "cv") (place-image (CIRCULO "green") (CENTRO ANCHO) (CENTRO ANCHO) ESCENA)]
+                          [(string=? e "ca") (place-image (CIRCULO "blue") (CENTRO ANCHO) (CENTRO ANCHO) ESCENA)]
+                         ))
+
+;DETECTA_COLOR String -> String
+(define (DETECTA_COLOR e) (substring e 1 2))
+
+;DETECTA_FIGURA String -> String
+(define (DETECTA_FIGURA e) (substring e 0 1))
+
+;controladorTeclado String String -> String
+(define (controladorTeclado e tecla) (
+                                      cond
+                                       [(string=? tecla "t") (string-append "t" (DETECTA_COLOR e))]
+                                       [(string=? tecla "c") (string-append "c" (DETECTA_COLOR e))]
+                                       [else e]
+                                      ))
+
+;controladorReloj String -> String
+(define (controladorReloj e) (
+                              cond
+                               [(string=? (DETECTA_COLOR e) "v") (string-append (DETECTA_FIGURA e)"a")]
+                               [(string=? (DETECTA_COLOR e) "a") (string-append (DETECTA_FIGURA e)"v")]
+                               [else e]
+                              ))
+
+(big-bang EINICIAL
+  [to-draw interpretar]
+  [on-key controladorTeclado]
+  [on-tick controladorReloj SEGUNDOS_RELOJ]
+)
+
+
+
+;(substring "tv" 1 2) 
   
 #|Ejercicio 10. Busque en internet dos imágenes de huellas, un pie
 derecho y un pie izquierdo.
