@@ -1,0 +1,24 @@
+(define (menorN? a n) (< a n))
+; (define (infAn l n) (filter (menorN? n) l)) Esto no anda porque filter necesita una funcion de un solo argumento.
+(define (infAn l n) (
+                     local [(define (menorN? y) (< y n))]
+                      (filter menorN? l)
+                     ))
+
+
+(define (esPar n) (= (modulo n 2) 0))
+(define (esImpar n) (not(= (modulo n 2) 0)))
+
+(define (primerosPares l ) (
+                            cond
+                             [(empty? l) empty]
+                             [else (foldr cons (filter esImpar l) (filter esPar l) )] ;EN FOLDR AL FINAL SE PONE EL CASO BASE QUE EN NUESTRO CASO SERÍA LA LISTA DE IMPARES
+                            ))
+
+
+(define lista (list 1 2 3 4 5 6 8 9 10))
+
+;(check-expect (primerosPares lista) (primerosParess lista))
+
+;(define (list 1 2 3 4 5 6 8 9 10))
+(cons (cons 2 (cons (cons 4 (cons (cons 6 (cons 8 (cons (cons 10 '()) (cons 9 '())))) (cons 5 '()))) (cons 3 '()))) (cons 1 '()))
