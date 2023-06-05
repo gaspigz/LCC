@@ -19,12 +19,5 @@
                            [(empty? l) #t]
                            [else (if (= (first l) (first (reverser l))) (and #t (listaCapicua (quitaFinal (rest l)))) (and #f (listaCapicua (quitaFinal (rest l)))))]
                           ))
-(define (intercala l r) (
-                         cond
-                          [(and (empty? l) (empty? r)) empty]
-                          [(empty? r) (cons (first l) (intercala (rest l) empty))]
-                          [(empty? l) (cons (first r) (intercala empty (rest r)))]
-                          [else (cons (first l) (cons (first r) (intercala (rest l) (rest r))))]
-                         
-                         ))
+
 
