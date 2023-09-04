@@ -28,3 +28,26 @@
                          
                          ))
 
+(define-struct Usr (name pass perm))
+; 0 es el identificador de permisos de administración del sistema
+(define ADMIN 0)
+;1 es el identificador de permisos de uso básico del sistema
+(define USRPERMISO 1)
+
+(define ANA (make-Usr "ana" "12345678" ADMIN))
+(define LUIS (make-Usr "luis" "12345678" USRPERMISO))
+(define MARTA (make-Usr "marta" "R34dlsoA" ADMIN))
+(define L1 (list ANA LUIS))
+(define L2 (list ANA LUIS MARTA))
+
+(define (anulaClaves L reemplazo)(local[(define (cambiaClave usr) (make-Usr (Usr-name usr) reemplazo (Usr-perm usr)))]
+                                   (map cambiaClave L)
+
+                                   )
+  )
+
+(check-expect (anulaClaves L1 "nula") (list (make-Usr "ana" "nula" ADMIN)
+(make-Usr "luis" "nula" USRPERMISO)))
+(check-expect (anulaClaves empty "nula") empty)
+  
+

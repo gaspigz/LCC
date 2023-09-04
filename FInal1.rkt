@@ -1,0 +1,87 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-intermediate-reader.ss" "lang")((modname FInal1) (read-case-sensitive #t) (teachpacks ((lib "universe.rkt" "teachpack" "2htdp") (lib "image.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "universe.rkt" "teachpack" "2htdp") (lib "image.rkt" "teachpack" "2htdp")) #f)))
+#|Ejercicio 1. Definir una constante MAZO-ORDENADO que sea una lista con los números del 0 a N.
+
+Ejercicio 2. Diseñar una función barajar que construya una mazo desordenado, es decir que devuelva una lista con los elementos de MAZO-ORDENADO pero con los elementos en un orden aleatorio.
+
+Para ésta función no de los casos de prueba, ya que el resultado contendrá números aleatorios.
+
+Ejercicio 3. Diseñar una función jugar, que dado un número natural n juega n veces al juego "Nada en su lugar". La función debe devolver una lista de n elementos de mazos desordenados.
+
+Al igual que en el ejercicio anterior, no de los casos de prueba.
+
+Ejercicio 4. Diseñar un predicado perdedora? que dada una lista de naturales, correspondiente a una tirada de cartas, determine si es una jugada perdedora.
+
+Ejercicio 5. Diseñar una función montecarlo que aplique el método montecarlo al juego, es decir, dado un natural n, realice n jugadas del juego y calcule la probabilidad de ganar al mismo. No dé los casos de prueba.
+
+Después de aplicar ésta función conteste a la pregunta: ¿Le conviene o no aceptar la apuesta de Lautaro?
+|#
+
+;VARIABLES GLOBALES
+(define N 40)
+(define CALIDAD_MEZCLA 10000) ;RECOMENDAMOS 1000
+
+#|EJERCICIO 1|#
+
+(define (creaLista m n) (if (< 0 n) (cons (- m (sub1 n)) (creaLista m (sub1 n))) empty))
+
+(define MAZO-ORDENADO (creaLista N N))
+
+#|EJERCICIO 2|#
+
+; barajar: List(Natural) -> List(Natural)
+; esta funcion recibe una lista de Naturales y y devuelve una lista de la misma
+; cantidad de elementos ordenados de forma aleatoria
+
+;shuffle2 List(Natural) Natural -> List(Natural)
+; QUE HACE SHUFFLE2
+
+(define (mezclador CALIDAD l) (cond
+                        [(zero? CALIDAD) l]
+                        [(< CALIDAD (random (* 2 CALIDAD))) (mezclador (sub1 CALIDAD) (append (rest l) (list (first l))))]
+                        [else (mezclador (sub1 CALIDAD) (append (list (first l)) (rest (rest l)) (list (first (rest l)))) )]
+                        ))
+
+(define (barajar l)
+  (mezclador CALIDAD_MEZCLA l))
+
+#|EJERCICIO 3|#
+
+; jugar: Natural -> List(List(Natural))
+; esta funcion recibe una Natural n y devuelve una lista de una n cantidad de
+; mazos desordenados
+
+(define (jugar n)
+  (cond[(zero? n) '()]
+       [else (cons (barajar MAZO-ORDENADO) (jugar (sub1 n)))]))
+
+#|EJERCICIO 4|#
+
+; perdedora?: List(Natural) -> Boolean
+; esta funcion recibe una lista de naturales y si algun natural coincide
+; con la posision que ocupa en la lista devuelve 0, en caso contrario
+; devuelve 1
+
+(define NRO_CARTAS (length MAZO-ORDENADO))
+
+(define (perdedora? n l) (
+                          cond
+                           [(= n 0) 1] ;Me quede sin cartas
+                           [(= (first l) (add1 (- NRO_CARTAS n))) 0] ;La carta de la primer posicion es igual al numero de la posicion
+                           [else (perdedora? (- n 1) (rest l))] ;La carta de la primer posicion no es igual al numero de la posicion
+                          ))
+
+(define (montecarlo n) (
+                        local [(define (perdedora?2 l) (perdedora? NRO_CARTAS l))]
+                        (if (>= (foldr + 0 (map perdedora?2 (jugar n))) (/ n 2))
+                            (string-append "Le conviene jugar, ya que con " (number->string n) " jugadas, logro " (number->string (foldr + 0(map perdedora?2 (jugar n)))) " jugadas ganadoras")
+                            (string-append "No le conviene jugar, ya que con " (number->string n) " jugadas, logro " (number->string (foldr + 0(map perdedora?2 (jugar n)))) " jugadas ganadoras")
+                        )))
+
+
+
+
+
+
+                      
