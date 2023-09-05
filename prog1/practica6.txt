@@ -1,0 +1,9 @@
+(define (creacirculos n m) (
+                          cond
+                           [(= n 0) (place-image (square (* 2(* m m)) "solid" "red") (* m m) (* m m)  (empty-scene (* 2(* m m)) (* 2(* m m))))]
+                           [else (place-image (circle (* n n) "outline" "black") (* m m) (* m m) (creacirculos (- n 1) m))]
+                          ))
+
+(define (eje9 n) (
+                  creacirculos n n
+                  ))

@@ -1,0 +1,91 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-intermediate-reader.ss" "lang")((modname fin2) (read-case-sensitive #t) (teachpacks ((lib "image.rkt" "teachpack" "2htdp") (lib "universe.rkt" "teachpack" "2htdp"))) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ((lib "image.rkt" "teachpack" "2htdp") (lib "universe.rkt" "teachpack" "2htdp")) #f)))
+;VARIABLES GLOBALES
+(define N 40)
+(define CALIDAD_MEZCLA 10000) ;RECOMENDAMOS 1000
+
+#|EJERCICIO 1|#
+
+; creaLista: Natural Natural -> List(Natural)
+; Esta funcion recibe dos Naturales x e y iguales y crea una lista de
+; naturales desde 1 a x
+
+(check-expect (creaLista 3 3) (list 1 2 3))
+(check-expect (creaLista 5 5) (list 1 2 3 4 5))
+(check-expect (creaLista 0 0) '())
+
+(define (creaLista m n) (if (< 0 n) (cons (- m (sub1 n)) (creaLista m (sub1 n))) empty))
+
+(define MAZO-ORDENADO (creaLista N N))
+
+#|EJERCICIO 2|#
+
+; mezclador: Natural List(Natural) -> List(Natural)
+; Mezclador toma un numero natural x que incialmente representa la calidad de la mezcla y una lista l ordenada del 1 al n, donde n es el total de cartas.
+; Decimos que x representa inicialmente la calidad de la mezcla ya que será el numero de iteraciones que haga mezclador.
+; Si x es 0, devuelve la lista ya mezclada.
+; Si x es menor a un numero aleatorio entre 0 y 2*x, se llama de nuevo a mezclador, con x-1 y una lista que tenga al primer elemento de la original al final
+; Si x no es menor a este número, se llama de nuevo a mezclador con x-1 y una lista que tenga a todos los elementos como la lista original, salvo el segundo que estará al final.
+; Esta función no cuenta con check-expects mas alla del caso base porque devuelve listas aleatorias, se toma a la función montecarlo para medir su efectividad de aleatorización.
+
+(check-expect (mezclador 0 (list 1 2 3)) (list 1 2 3))
+
+(define (mezclador x l) (cond
+                        [(zero? x) l]
+                        [(< x (random (* 2 x))) (mezclador (sub1 x) (append (rest l) (list (first l))))]
+                        [else (mezclador (sub1 x) (append (list (first l)) (rest (rest l)) (list (first (rest l)))) )]
+                        ))
+
+; barajar: List(Natural) -> List(Natural)
+; esta funcion recibe una lista de Naturales y y devuelve una lista de la misma
+; cantidad de elementos ordenados de forma aleatoria
+
+(define (barajar l)
+  (mezclador CALIDAD_MEZCLA l))
+
+#|EJERCICIO 3|#
+
+; jugar: Natural -> List(List(Natural))
+; esta funcion recibe una Natural n y devuelve una lista de una n cantidad de
+; mazos desordenados
+
+(define (jugar n)
+  (cond[(zero? n) '()]
+       [else (cons (barajar MAZO-ORDENADO) (jugar (sub1 n)))]))
+
+#|EJERCICIO 4|#
+
+(define NRO_CARTAS (length MAZO-ORDENADO))
+
+; perdedora?: Natural List(Natural) -> Boolean
+; esta funcion recibe una lista de naturales y si algun natural coincide
+; con la posision que ocupa en la lista devuelve #true, en caso contrario
+; devuelve #false
+
+(check-expect (perdedora? NRO_CARTAS MAZO-ORDENADO) #true)
+(check-expect (perdedora? NRO_CARTAS (reverse (creaLista N N))) #false)
+
+(define (perdedora? n l) (
+                          cond
+                           [(= n 0) #false] ;Me quede sin cartas
+                           [(= (first l) (add1 (- NRO_CARTAS n))) #true] ;La carta de la primer posicion es igual al numero de la posicion
+                           [else (perdedora? (- n 1) (rest l))] ;La carta de la primer posicion no es igual al numero de la posicion
+                          ))
+#|EJERCICIO 5|#
+
+; montecarlo: Natural -> Number
+; esta funcion recibe un Natural n y juega a Nada En Su Lugar n veces y devuelve que probabilidad hay de
+; ganar entre 0 y 100
+
+(check-within (montecarlo 1000) 36 3)
+(check-within (montecarlo 5000) 36 1) ;Esto hace que demore un poco la ejecución, esperar.
+
+(define (montecarlo n) (
+                        local [(define (perdedora?2 l) (perdedora? NRO_CARTAS l))] ;Queremos que deje solo las falsas
+                         (* (length (filter not (map perdedora?2 (jugar n)))) (/ 100 n))
+                         ))
+                            
+                        
+; No le conviene aceptar la apuesta ya que las probabilidades de ganar son menores que las de perder.
+; Por ejemplo, si se juega a Nada En su Lugar 5000 veces hay aproximadamente un 36% de probabilidad de ganar.
