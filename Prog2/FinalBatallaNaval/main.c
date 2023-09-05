@@ -73,9 +73,8 @@ int randomizar_lista(Barco lista_barcos[], int total_barcos, int filas, int colu
     return tope;
 }
 
-void llena_lista_final(Barco lista_barcos[], int tope, int filas, int columnas, Barco lista_final[]){
+int llena_lista_final(Barco lista_barcos[], int tope, int filas, int columnas, Barco lista_final[]){
   int j = 0, bandera = 1, bandera_interna = 1;
-  tope= 7;
   int tablero[100][100];
   for(int i=0; i<filas;i++){
     for(int k=0; k<columnas; k++){
@@ -155,16 +154,24 @@ void llena_lista_final(Barco lista_barcos[], int tope, int filas, int columnas, 
       bandera_interna = 1;
       bandera = 1;
      }
-     printf("\nTOTAL BARCOS FINALES:\n TOPE: %d \n",tope);
+     printf("\nTOTAL BARCOS FINALES: %d\n TOPE: %d \n", j, tope);
      getchar();
      for(int k=0; k<j; k++){
       printf("Fila: %d, Columna: %d, Direccion: %d, Largo: %d\n", lista_final[k].fila, lista_final[k].columna, lista_final[k].direccion, lista_final[k].largo);
      }
      getchar();
+
+     return j;
 }
 
-void escribir_archivo(Barco lista_final[], int tope){
+void escribir_archivo(Barco lista_final[],int filas, int columnas, int tope){
+    FILE *f = fopen("salida.txt", "w");
+    fprintf(f, "%d %d\n", filas, columnas);
+    for(int k = 0; k<tope; k++){
+      fprintf(f, "%d %d %d %d\n", lista_final[k].fila, lista_final[k].columna, lista_final[k].direccion, lista_final[k].largo);
+    }
 
+    fclose(f);
 }
 
 
@@ -178,8 +185,8 @@ int main(){
   getchar();
   tope = randomizar_lista(lista_barcos, total_barcos, filas, columnas);
   getchar();
-  llena_lista_final(lista_barcos, tope, filas, columnas, lista_final);
-  escribir_archivo(lista_final, tope);
+  tope = llena_lista_final(lista_barcos, tope, filas, columnas, lista_final);
+  escribir_archivo(lista_final,filas, columnas, tope);
 
   
   return 0;
