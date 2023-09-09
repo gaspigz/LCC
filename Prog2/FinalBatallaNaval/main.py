@@ -11,15 +11,15 @@ def main():
 
 def jugar(tablero, disparos_disponibles):
     disparos_usados = 0
-    while disparos_usados < disparos_disponibles or len(tablero)>0:
+    while disparos_usados < disparos_disponibles and len(tablero)>0:
         bandera = 0
         print(tablero)
         disparo_x = int(input('Ingrese coordenada X del disparo numero ' + str(disparos_usados) + ': '))
         disparo_y = int(input('Ingrese coordenada Y del disparo numero ' + str(disparos_usados) + ': '))
-        for i in range(0, len(tablero)-1):
-            if tablero[i] == (disparo_x, disparo_y):
-                print('LE PEGASTE!!')
-                tablero.remove(tablero[i])
+        for barco in tablero:
+            if barco == (disparo_x, disparo_y):
+                print('LE PEGASTE!!  - QUEDAN ' + str(disparos_disponibles - disparos_usados) + ' DISPAROS')
+                tablero.remove(barco)
                 bandera = 1
         disparos_usados +=1
         if  bandera == 0:

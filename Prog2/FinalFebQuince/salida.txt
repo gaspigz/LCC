@@ -1,0 +1,10 @@
+Ale,Gimenez,17,ros
+Gaspar,Gimenez,20,Ros
+Ernes,Miniussi,19,Ros
+Alfon,Miniussi,10,Ros
+Rodri,Miniussi,16,Ros
+Bianca,God,16,Ros
+Schujman,Alejandro,50,Buenos Aires
+Vilma,Palma,56,Buenos Aires
+Lio,Messi,40,Ros
+Anto,Rocuzzo,16,Buenos Aires

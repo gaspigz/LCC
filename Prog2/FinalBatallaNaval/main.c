@@ -4,6 +4,7 @@
 #include <time.h>
 
 //Pos fila, Pos col, Dir, largo
+// Barco: Int Int Int Int
 typedef struct {
   int fila;
   int columna;
