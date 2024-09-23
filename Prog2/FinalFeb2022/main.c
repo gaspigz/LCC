@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 
 typedef struct{
     char nombre[100];
@@ -38,28 +39,34 @@ int leer_archivo(Persona *lista_personas){
 
 }
 
-void generador_afinidades(Persona *lista_personas, Afinidad *lista_afinidades, cantidad){
-    cantidad_afinidades = rand() % cantidad-1;
-    for(int i = 0; i<cantidad_afinidades; i++){
-        
-    }
+void generador_afinidades(Persona *lista_personas, Afinidad *lista_afinidades, int cantidad){
+    //cantidad_afinidades = rand() % cantidad-1;
+    
+}
+
+int duplicador(int k){
+    return k*2;
 }
 
 int main(){
 
     Persona *lista_personas;
+    Afinidad *lista_afinidades;
     int cantidad, K;
 
-    lista_personas = (Persona *) calloc(100, sizeof(Persona));
     lista_afinidades = (Afinidad *) calloc(100, sizeof(Afinidad));
+    lista_personas = (Persona *) calloc(100, sizeof(Persona));
+    
 
     cantidad = leer_archivo(lista_personas);
 
     K = inventa_afinidad(cantidad);
 
-    generador_afinidades(lista_personas, lista_afinidades, cantidad);
+    //generador_afinidades(lista_personas, lista_afinidades, cantidad);
 
     mostrar_lista(lista_personas, cantidad);
+
+    assert(duplicador(2) == 5);
 
     free(lista_personas);
     free(lista_afinidades);
