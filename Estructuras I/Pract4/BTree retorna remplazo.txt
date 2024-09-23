@@ -1,0 +1,106 @@
+BTree retorna_remplazo(BTree arbol, int dato_a_eliminar){
+
+	if(arbol == NULL) return NULL;
+	if(arbol->dato == dato_a_eliminar){
+		if(arbol->left == NULL && arbol->right == NULL) return NULL;
+		if(arbol->left == NULL && arbol->right != NULL) return arbol->right;
+		if(arbol->left != NULL && arbol->right == NULL) return arbol->left;
+		if(arbol->left != NULL && arbol->right != NULL){
+			return menor_entre_mayores(arbol->right);
+		}
+	}
+	if(dato_a_eliminar < arbol->dato){
+		return retorna_remplazo(arbol->left, dato_a_eliminar);
+	}else{
+		return retorna_remplazo(arbol->left, dato_a_eliminar);
+	}
+}
+
+BTree menor_entre_mayores(BTree arbol){
+	if(arbol->left == NULL) return arbol;
+	return menor_entre_mayores(arbol->left);
+
+}
+
+///////////////////////////////////////
+
+BTree nodoReemplazo(BTree nodoAEliminar){
+	if(nodoAEliminar == NULL) return NULL;
+	if(nodoAEliminar->left == NULL && nodoAEliminar->right == NULL) return NULL;
+	if(nodoAEliminar->left != NULL && nodoAEliminar->right == NULL) return nodoAEliminar->left;
+	if(nodoAEliminar->left == NULL && nodoAEliminar->right != NULL) return nodoAEliminar->right;
+	if(nodoAEliminar->left != NULL && nodoAEliminar->right != NULL) return menorEntreMayores(nodoAEliminar->right);
+	
+}
+
+
+
+
+BSTree busca_padre(BSTree origen, BSTree nodo_hijo, FuncionComparadora comp){
+  if(origen == NULL) return NULL;
+  if(comp(nodo_hijo->dato, origen->dato) > 0){
+    if(origen->der == nodo_hijo){ return origen;}
+    else{
+      return busca_padre(origen->der, nodo_hijo, comp);
+    }
+
+  }
+  if(comp(nodo_hijo->dato, origen->dato) < 0){
+    if(origen->izq == nodo_hijo){ return origen;}
+    else{
+      return busca_padre(origen->izq, nodo_hijo, comp);
+    }
+
+  }
+}
+
+BSTree bstree_eliminar(BSTree arbol, void *dato, FuncionComparadora comp, FuncionDestructora destroy){
+  if(arbol == NULL) return NULL;
+
+  if(comp(dato, arbol->dato) == 0){
+    if(arbol->der == NULL && arbol->izq == NULL){
+      destroy(arbol);
+      return NULL;
+    }
+    if(arbol->der == NULL && arbol->izq != NULL){
+      BSTree nodo_reemplazo = arbol->izq;
+      arbol->izq = NULL;
+      destroy(arbol);
+      return nodo_reemplazo;
+    }
+    if(arbol->der != NULL && arbol->izq == NULL){
+      BSTree nodo_reemplazo = arbol->der;
+      arbol->der = NULL;
+      destroy(arbol);
+      return nodo_reemplazo;
+    }
+    if(arbol->der != NULL && arbol->izq != NULL){
+      BSTree nodo_reemplazo = arbol->der;
+      while(nodo_reemplazo->izq != NULL){
+        nodo_reemplazo = nodo_reemplazo->izq;
+      }
+      BSTree derecha_de_reemplazo = nodo_reemplazo->der;
+      BSTree padre_de_reemplazo = busca_padre(arbol, nodo_reemplazo, comp);
+      padre_de_reemplazo->izq = derecha_de_reemplazo;
+      nodo_reemplazo->izq = arbol->izq;
+      nodo_reemplazo->der = arbol->der;
+      arbol->der = NULL;
+      arbol->izq = NULL;
+      destroy(arbol);
+      return nodo_reemplazo;
+
+    }
+
+
+  }
+  if(comp(dato, arbol->dato) > 0){
+    arbol->der = bstree_eliminar(arbol->der, dato, comp, destroy);
+    return arbol;
+  }else{
+    arbol->izq = bstree_eliminar(arbol->izq, dato, comp, destroy);
+    return arbol;
+  }
+
+
+
+}

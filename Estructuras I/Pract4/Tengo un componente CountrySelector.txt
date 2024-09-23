@@ -1,0 +1,555 @@
+Tengo un componente CountrySelector:
+import { useState } from 'react';
+import countries from '@json/countries.json'; // Assume we have a JSON file with country data
+
+const CountrySelector = ({ onCountrySelect }) => {
+  const [inputValue, setInputValue] = useState('');
+  const [filteredOptions, setFilteredOptions] = useState([]);
+
+  const handleInputChange = (event) => {
+    const value = event.target.value;
+    setInputValue(value);
+
+    // Filtrar las opciones basadas en el valor del input
+    const filtered = countries.filter(country =>
+      country.name.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredOptions(filtered);
+  };
+
+  const handleOptionClick = (country) => {
+    setInputValue(country.name);
+    setFilteredOptions([]);
+    onCountrySelect(country);
+  };
+
+  return (
+    <div className="relative">
+      <input
+        type="text"
+        className="w-full rounded-md border-2 border-gray-200 h-10 p-5 active:outline-none focus:outline-none focus:ring-2 focus:ring-gray-300 transition-all-02s"
+        placeholder="Select your country"
+        value={inputValue}
+        onChange={handleInputChange}
+      />
+      {filteredOptions.length > 0 && (
+        <ul className="absolute z-10 bg-white border border-gray-200 w-full mt-1 rounded-md shadow-lg max-h-40 overflow-y-auto">
+          {filteredOptions.map(country => (
+            <li
+              key={country.code}
+              className="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100"
+              onClick={() => handleOptionClick(country)}
+            >
+              <p className="w-6 h-4 mr-2" > {country.flag}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
+export default CountrySelector;
+El cual ve un json que tiene todos los paises, con las banderas y el dial_code.
+Además, tengo un componente principal:
+"use client"
+
+import Nav from '@components/Navbar/Nav';
+import { useState, useEffect } from 'react';
+import apiFunctions from "@components/apiFunctions";
+import { useRouter } from "next/navigation";
+import Stepper from '@components/Common/Stepper';
+import InputText from '@/components/Common/InputText'
+import InputList from '@/components/Common/InputList'
+import RadioGroup from '@components/Common/RadioGroup';
+import DatePicker from '@components/Common/DatePicker';
+import CountrySelector from '@components/Common/CountrySelector';
+
+
+
+const checkToken = async (setUser, router) => {
+  //Get user info from token
+
+  let token = localStorage.getItem('token');
+  if(!token){
+    router.push('/');
+  }
+
+  if(token){
+    const res = await apiFunctions.get_from_api_token("get_credentials_from_token", {}, token);
+    res.json().then((data) => {
+      if(Object.keys(data).length == 0){
+        localStorage.removeItem('token');
+        setUser(null);
+        router.push('/');
+
+      }
+      setUser(data);     
+    });
+  }
+
+}
+
+const SignupCompletePage = () => {
+  
+  const [isMenuOpen, setIsMenuOpen] = useState(false); 
+  const [user, setUser] = useState(null);
+  const [completingSignUpSteps, setCompletingSignUpSteps] = useState(["Un poco de vos", "Ciudad y teléfono", "Tu emprendimiento"]);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [complete, setComplete] = useState(false);
+
+  const [nombre, setNombre] = useState('');
+  const [apellido, setApellido] = useState('');
+  const [nombre_empresa, setNombreEmpresa] = useState('');
+  const [ciudad, setCiudad] = useState('');
+  const [calle, setCalle] = useState('');
+  const [numero, setNumero] = useState('');
+  const [opcionales, setOpcionales] = useState('');
+  const [codigo_postal, setCodigoPostal] = useState('');
+  const [telefono, setTelefono] = useState('');
+  const [fechaNacimiento, setFechaNacimiento] = useState(''); 
+
+  const [selectedGender, setSelectedGender] = useState(null);
+
+  const [selectedCountry, setSelectedCountry] = useState(null);
+
+  const genderOptions = [
+    { id: 1, label: 'Hombre' },
+    { id: 2, label: 'Mujer' },
+    { id: 3, label: 'No definido' },
+  ];
+
+  const [ciudades, setCiudades] = useState([{ id: 1, name: "Rosario", surname:"" },
+                                            { id: 2, name: "Buenos Aires", surname: "" },
+                                            { id: 3, name: "Córdoba", surname: "" },
+                                            { id: 4, name: "Mendoza", surname: "" },]);
+
+  const router = useRouter();
+
+  const buttonStepperAction = () => {
+    currentStep === completingSignUpSteps.length
+              ? setComplete(true)
+              : setCurrentStep((prev) => prev + 1);
+
+  }
+
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+
+    // Actualizar el estado correspondiente según el ID del campo de entrada
+    switch (id) {
+      case 'nombre_empresa':
+        setNombreEmpresa(value);
+        break;
+      case 'nombre':
+        setNombre(value);
+        break;
+      case 'apellido':
+        setApellido(value);
+        break;
+      case 'ciudad':
+        setCiudad(value.name);
+        break;
+      case 'calle':
+        setCalle(value);
+        break;
+      case 'numero':
+        setNumero(value);
+        break;
+      case 'opcionales':
+        setOpcionales(value);
+        break;
+      case 'codigo_postal':
+        setCodigoPostal(value);
+        break;
+      case 'telefono':
+        setTelefono(value);
+        break;
+      case 'fechaNacimiento':
+        setFechaNacimiento(value);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handleCountrySelect = (country) => {
+    setSelectedCountry(country);
+    setTelefono(`${country.dial_code} `);
+  };
+  
+  useEffect(() => {
+    checkToken(setUser, router);
+  }, []);
+
+  useEffect(() => {
+    console.log(fechaNacimiento);
+  }, [fechaNacimiento]);
+
+  return (
+    <div style={isMenuOpen ? { height: '113vh' } : { height: '100vh' }} className="bg-[#FBFBFB] flex flex-col">
+      <div className={isMenuOpen ? "h-[23vh]" : "h-[10vh]"}><Nav setIsMenuOpen={setIsMenuOpen} isMenuOpen={isMenuOpen}/></div>
+      <div className="h-[90vh] shadow-[inset_0px_0px_25px_6px_#e2e8f0] bg-[#FBFBFB] flex flex-col justify-center items-center">
+        <div className='w-full mt-16 md:mt-6 md:w-1/3'>
+            <Stepper steps={completingSignUpSteps} currentStep={currentStep} complete={complete} setCurrentStep={setCurrentStep} setComplete={setComplete}/>
+        </div>
+        <form className="w-[90vw] h-[80vh] md:w-40 bg-slate-150 md:h-[33rem] md:w-[40rem] md:shadow-lg rounded-md flex flex-col justify-center items-center align-center">
+          <div className='w-[80%]'>
+            
+            <p className={`animated-text text-slate-700 text-left w-full ${currentStep == 1 ? 'animate-fade-left' : 'hidden'}`}>Nombre de tu perfil</p>
+            <div className={`animated-text mb-4 mt-2 w-full ${currentStep == 1 ? 'animate-fade-left' : 'hidden'}`}><InputText type="text" placeholder="Muebles Pérez Ordóñez" id="nombre_empresa" onChange={handleInputChange} value={nombre_empresa}/></div>
+            <div className='w-full flex justify-between'>
+              <div className='w-[50%] md:w-[50%]'>
+                <p className={`animated-text mt-2 text-slate-700 text-left w-full ${currentStep == 1 ? 'animate-fade-left' : 'hidden'}`}>Nombre del propietario</p>
+                <div className={`animated-text mt-2 mb-4 w-full ${currentStep == 1 ? 'animate-fade-left' : 'hidden'}`}><InputText type="text" placeholder="Juan Armando" id="nombre" onChange={handleInputChange} value={nombre}/></div>
+              </div>
+              <div className='w-[45%] md:w-[48%]'>
+                <p className={`animated-text mt-2 text-slate-700 text-left w-full ${currentStep == 1 ? 'animate-fade-left' : 'hidden'}`}>Apellido del propietario</p>
+                <div className={`animated-text mt-2 w-full ${currentStep == 1 ? 'animate-fade-left' : 'hidden'}`}><InputText type="text" placeholder="Pérez Ordóñez" id="apellido" onChange={handleInputChange} value={apellido}/></div>
+              </div>
+            </div>
+            <p className={`animated-text mt-2 text-slate-700 text-left w-full ${currentStep === 1 ? 'animate-fade-left' : 'hidden'}`}>Género</p>
+            <div className={`animated-text mt-2 w-full ${currentStep === 1 ? 'animate-fade-left' : 'hidden'}`}>
+              <RadioGroup options={genderOptions} selectedOption={selectedGender} onOptionChange={setSelectedGender} />
+            </div>
+            <p className={`animated-text mt-2 text-slate-700 text-left w-full ${currentStep === 1 ? 'animate-fade-left' : 'hidden'}`}>Fecha de nacimiento propietario</p>
+            <div className={`animated-text mt-2 w-full ${currentStep === 1 ? 'animate-fade-left' : 'hidden'}`}>
+              <DatePicker id="fecha_nacimiento" placeholder='15/07/2003' value={fechaNacimiento} onChange={handleInputChange} />
+            </div>
+          </div>
+          <div className='w-[80%]'>
+
+            <p className={`animated-text text-slate-700 text-left w-full ${currentStep == 2 ? 'animate-fade-left' : 'hidden'}`}>Ciudad</p>
+            <div className={`animated-text mb-4 mt-2 w-full ${currentStep == 2 ? 'animate-fade-left' : 'hidden'}`}><InputList placeholder="Rosario" id="ciudad" onChange={handleInputChange} options={ciudades} displayField="name"/></div>
+            <div className='w-full flex justify-between'>
+              <div className='w-[68%]'>
+                <p className={`animated-text text-slate-700 text-left w-full ${currentStep == 2 ? 'animate-fade-left' : 'hidden'}`}>Calle</p>
+                <div className={`animated-text mb-4 mt-2 w-full ${currentStep == 2 ? 'animate-fade-left' : 'hidden'}`}><InputText type="text" placeholder="Martín Rodríguez" id="calle" onChange={handleInputChange} value={calle}/></div>
+              </div>
+              <div className='w-[30%]'>
+                <p className={`animated-text text-slate-700 text-left w-full ${currentStep == 2 ? 'animate-fade-left' : 'hidden'}`}>Número</p>
+                <div className={`animated-text mt-2 mb-4 w-full ${currentStep == 2 ? 'animate-fade-left' : 'hidden'}`}><InputText type="text" placeholder="3461" id="numero" onChange={handleInputChange} value={numero}/></div>
+              </div>
+            </div>
+            <div className='w-full flex justify-between'>
+              <div className='w-[58%] md:w-[78%]'>
+                <p className={`animated-text text-slate-700 text-left w-full ${currentStep == 2 ? 'animate-fade-left' : 'hidden'}`}>Opcional</p>
+                <div className={`animated-text mt-2 w-full ${currentStep == 2 ? 'animate-fade-left' : 'hidden'}`}><InputText type="text" placeholder="Local 107, Galería del Bosque" id="opcionales" onChange={handleInputChange} value={opcionales}/></div>
+              </div>
+              <div className='w-[40%] md:w-[20%]'>
+                <p className={`animated-text text-slate-700 text-left w-full ${currentStep == 2 ? 'animate-fade-left' : 'hidden'}`}>Código postal</p>
+                <div className={`animated-text mt-2 mb-4 w-full ${currentStep == 2 ? 'animate-fade-left' : 'hidden'}`}><InputText type="text" placeholder="20001" id="codigo_postal" onChange={handleInputChange} value={codigo_postal}/></div>
+              </div>
+            </div>
+            <p className={`animated-text text-slate-700 text-left w-full ${currentStep == 2 ? 'animate-fade-left' : 'hidden'}`}>Teléfono</p>
+            {/* ACA VA EL INPUT DEL TELEFONO EN FORMATO '(flag) +54 | 3416924442' */}
+            
+          </div>
+          
+          <p className={`animated-text ${currentStep == 3 && !complete ? 'animate-fade-left' : 'hidden'}`}>Texto tercero</p>         
+        
+          {!complete && (
+          <button
+            className={!complete ? "bg-[#F06C15]" + " hover:bg-[#eb7b31] transition-all-02s rounded-md py-4 px-14 text-lg font-semibold mb-2 text-white mt-14" : 
+            "bg-[#E1E1E1]" + " rounded-md py-4 px-20 text-lg font-semibold text-gray-500 mb-2 mt-14"}
+            onClick={(e) => {
+              e.preventDefault();
+              buttonStepperAction();
+            }}
+          >
+            {currentStep === completingSignUpSteps.length ? "Finish" : "Next"}
+          </button>
+          )}
+          {currentStep > 1 && (
+            <p
+              className="text-[#F06C15] cursor-pointer underline"
+              onClick={() => setCurrentStep((prev) => prev - 1)}
+            >Paso anterior</p>
+
+          )}
+        </form>
+      
+      </div>
+      
+      {/*<Footer/>*/}
+    </div>
+  )
+}
+
+export default SignupCompletePage
+
+Todo con TailwindCSS Y next JS. Además cuento con los siguientes componentes con la estetica ideal:
+ import { useState, useEffect } from 'react';
+
+const InputList = ({ placeholder = "", options = [], id, displayField = "name", onChange }) => {
+  const [inputValue, setInputValue] = useState('');
+  const [filteredOptions, setFilteredOptions] = useState([]);
+
+  const handleInputChange = (event) => {
+    const value = event.target.value;
+    setInputValue(value);
+
+    // Filtrar las opciones basadas en el valor del input
+    const filtered = options.filter(option =>
+      option[displayField].toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredOptions(filtered);
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Escape') {
+      setFilteredOptions([]);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  const handleOptionClick = (option) => {
+    setInputValue(option[displayField]);
+    setFilteredOptions([]);
+    const e = {target: {id, value: option}};
+    if (onChange) onChange(e);
+  };
+
+  return (
+    <div className="relative">
+      <input
+        type="text"
+        className="w-full rounded-md border-2 border-gray-200 h-10 p-5 active:outline-none focus:outline-none focus:ring-2 focus:ring-gray-300 transition-all-02s"
+        placeholder={placeholder}
+        value={inputValue}
+        onChange={handleInputChange}
+        id={id}
+      />
+      {filteredOptions.length > 0 && (
+        <ul className="absolute z-10 bg-white border border-gray-200 w-full mt-1 rounded-md shadow-lg">
+          {filteredOptions.map(option => (
+            <li
+              key={option.id}
+              className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+              onClick={() => handleOptionClick(option)}
+            >
+              {option[displayField]}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
+export default InputList;
+PARA LISTAS
+const InputText = ({placeholder = "", id=null, type="text", value, onChange}) => {
+  return (
+    <input
+      type={type}
+      className="w-full rounded-md border-2 border-gray-200 h-10 p-5 active:outline-none focus:outline-none focus:ring-2 focus:ring-gray-300 transition-all-02s"
+      placeholder={placeholder}
+      id={id}
+      value={value}
+      onChange={onChange}
+    />
+  )
+}
+
+export default InputText
+PARA TEXTOS
+import { useState, useEffect, useRef } from 'react';
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addMonths, subMonths, addDays, isSameDay, isSameMonth, parse, getYear, setYear, getMonth, setMonth, isBefore } from 'date-fns';
+
+const DatePicker = ({ id, value, onChange, placeholder = "dd/mm/yyyy" }) => {
+  const [inputValue, setInputValue] = useState(value ? format(new Date(value), 'dd/MM/yyyy') : '');
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState(value ? new Date(value) : new Date());
+  const [viewYears, setViewYears] = useState(false);
+  const [viewMonths, setViewMonths] = useState(false);
+  const [yearsPage, setYearsPage] = useState(0);
+  const yearsPerPage = 12;
+  const maxDate = new Date();
+  const datePickerRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (datePickerRef.current && !datePickerRef.current.contains(event.target)) {
+        setShowCalendar(false);
+        setViewYears(false);
+        setViewMonths(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (showCalendar) {
+      const inputRect = datePickerRef.current.getBoundingClientRect();
+      const calendarHeight = 300; // Aproximado, ajusta según tu diseño
+      const spaceBelow = window.innerHeight - inputRect.bottom;
+      if (spaceBelow < calendarHeight) {
+        datePickerRef.current.querySelector('.calendar').style.bottom = '100%';
+        datePickerRef.current.querySelector('.calendar').style.top = 'auto';
+      } else {
+        datePickerRef.current.querySelector('.calendar').style.top = '100%';
+        datePickerRef.current.querySelector('.calendar').style.bottom = 'auto';
+      }
+    }
+  }, [showCalendar]);
+
+  const handleInputChange = (event) => {
+    const value = event.target.value;
+    setInputValue(value);
+    const date = parse(value, 'dd/MM/yyyy', new Date());
+    if (!isNaN(date) && isBefore(date, maxDate)) {
+      setCurrentMonth(date);
+      setShowCalendar(true);
+    }
+  };
+
+  const handleDateClick = (date) => {
+    const formattedDate = format(date, 'dd/MM/yyyy');
+    setInputValue(formattedDate);
+    setShowCalendar(false);
+    const e = { target: { id, value: date } };
+    if (onChange) onChange(e);
+  };
+
+  const renderDays = () => {
+    const startDate = startOfWeek(startOfMonth(currentMonth), { weekStartsOn: 1 });
+    const endDate = endOfWeek(endOfMonth(currentMonth), { weekStartsOn: 1 });
+    const dateFormat = "d";
+    const rows = [];
+    let days = [];
+    let day = startDate;
+
+    while (day <= endDate) {
+      for (let i = 0; i < 7; i++) {
+        const cloneDay = day;
+        days.push(
+          <div
+            key={day}
+            className={`px-2 py-2 text-center cursor-pointer ${!isSameMonth(day, currentMonth) || isBefore(maxDate, day) ? "text-gray-400" : ""} ${isSameDay(day, parse(inputValue, 'dd/MM/yyyy', new Date())) ? "bg-blue-500 text-white" : "hover:bg-gray-200"}`}
+            onClick={() => !isBefore(maxDate, day) && handleDateClick(cloneDay)}
+          >
+            {format(day, dateFormat)}
+          </div>
+        );
+        day = addDays(day, 1);
+      }
+      rows.push(
+        <div className="flex justify-between" key={day}>
+          {days}
+        </div>
+      );
+      days = [];
+    }
+    return <div>{rows}</div>;
+  };
+
+  const renderHeader = () => {
+    return (
+      <div className="flex flex-col justify-between items-center p-2">
+        <div>
+          <span onClick={() => setViewYears(true)} className="cursor-pointer underline">{format(currentMonth, 'yyyy')}</span>
+        </div>
+        <div>
+          <span onClick={() => setViewMonths(true)} className="cursor-pointer underline">{format(currentMonth, 'MMMM')}</span>
+        </div>
+        <div className="flex justify-between w-full mt-2">
+          <div onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="cursor-pointer">{"<"}</div>
+          <div onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="cursor-pointer">{">"}</div>
+        </div>
+      </div>
+    );
+  };
+
+  const handleYearClick = (year) => {
+    setCurrentMonth(setYear(currentMonth, year));
+    setViewYears(false);
+  };
+
+  const handleMonthClick = (month) => {
+    setCurrentMonth(setMonth(currentMonth, month));
+    setViewMonths(false);
+  };
+
+  const renderYears = () => {
+    const years = [];
+    const minYear = 1900;
+    const maxYear = getYear(maxDate);
+    const startYear = minYear + yearsPage * yearsPerPage;
+    const endYear = startYear + yearsPerPage;
+
+    for (let year = startYear; year < endYear && year <= maxYear; year++) {
+      years.push(
+        <div
+          key={year}
+          className="px-2 py-2 text-center cursor-pointer hover:bg-gray-200"
+          onClick={() => handleYearClick(year)}
+        >
+          {year}
+        </div>
+      );
+    }
+
+    return (
+      <div>
+        <div className="flex justify-between">
+          <div onClick={() => setYearsPage((prev) => Math.max(prev - 1, 0))} className="cursor-pointer">{"<"}</div>
+          <div onClick={() => setYearsPage((prev) => (startYear + yearsPerPage < maxYear ? prev + 1 : prev))} className="cursor-pointer">{">"}</div>
+        </div>
+        <div className="flex flex-wrap">{years}</div>
+      </div>
+    );
+  };
+
+  const renderMonths = () => {
+    const months = Array.from({ length: 12 }, (_, index) => (
+      <div
+        key={index}
+        className="px-2 py-2 text-center cursor-pointer hover:bg-gray-200"
+        onClick={() => handleMonthClick(index)}
+      >
+        {format(setMonth(new Date(), index), 'MMMM')}
+      </div>
+    ));
+
+    return <div className="flex flex-wrap">{months}</div>;
+  };
+
+  return (
+    <div className="relative" ref={datePickerRef}>
+      <input
+        type="text"
+        className="w-full rounded-md border-2 border-gray-200 h-10 p-5 active:outline-none focus:outline-none focus:ring-2 focus:ring-gray-300 transition-all-02s"
+        placeholder={placeholder}
+        value={inputValue}
+        onChange={handleInputChange}
+        id={id}
+        onFocus={() => setShowCalendar(true)}
+      />
+      {showCalendar && (
+        <div className="absolute z-10 bg-white border border-gray-200 w-full mt-1 rounded-md shadow-lg p-4 calendar">
+          {viewYears ? renderYears() : viewMonths ? renderMonths() : (
+            <>
+              {renderHeader()}
+              {renderDays()}
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default DatePicker;
+PARA FECHAS.
+
+Me gusto mucho como queda la estetica de la lista, necesito hacer un componente input que sea del formato '(flag) +54 3416924442' con la misma estetica, que tenga dos partes, la primera donde se selecciona el pais segun su codigo (este es chiquito y esta a la izquierda, visualmente separados por una | solo a efectos esteticos. Es importante que la lista de paises (al igual que el calendario hace) decida si ponerse para arriba o para abajo segun entre, por defecto para abajo y no debe mover para abajo el resto de cosas, es decir se debe superponer (Como la lista del componente lista), esta lista debe al tocarse una bandera, insertar la caracteristica en el campo de telefono. Luego, el usuario deberia poder escribir su telefono en el campo de la derecha (sin poder modificar la caracteristica de no ser por seleccionar otra de la lista). Luego debo guardar este dato  telefono (es decir por ej +54 3416924442) en el componente principal en un estado nuevo, ya sea con la funcion handle ya hecha o con otra que hagas vos, para enviarla al completar el form.

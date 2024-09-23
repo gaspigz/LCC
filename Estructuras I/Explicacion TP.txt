@@ -1,0 +1,182 @@
+EJERCICIO 1)
+- La idea va a ser la siguiente:
+- Supongamos que el robot empieza en la posición (x1, y1), y quiere llegar a (x2, y2). El robot puede moverse en 4 direcciones: U D R L.
+- El robot siempre tendra un par de opciones (P, Q) preferenciales, pues el objetivo puede estar: arriba y a la derecha, abajo y a la derecha, abajo y a la izquierda, o abajo y a la derecha.
+- El robot primero intentará moverse en alguna de estas direcciones (P, Q), supongamos sin perder generalidad que decide moverse hacia P, lo hará nuevamente mientras esto sea posible y mientras siga a la -P del objetivo. Si llego a estar a la misma altura respecto de P que su objetivo (osea x1 = x2 o y1 = y2), luego avanzara en la direccion Q mientras esto sea posible. En caso de que en algún momento choque con un obstaculo, volverá a suy posicion previa a chocar y se direccionará en la segunda posicion prioritaria (es decir que si chocó yendo hacia P, retrosederá y hara Q).
+- De no ser posible, retroseder'a y hara se movera en alguna de las direcciones no preferenciales hasta poder moverse en direccion de P o Q nuevamente. En caso de quedarse sin opciones, volverá sobre sus pasos hasta poder moverse nuevamente, siguiendo las prioridades.
+
+- El tablero será guardado con una struct Grid, la cual tendra:
+	- Ancho, largo, ancho x largo espacios en memoria con 0 en caso de estar libre, 1 en caso de estar ocupado, 2 si es el nodo inicio y 3 si es el final, Coord inicio, Coord final.
+- Coord será un struct con:
+	- Int x, Int y.
+- El robot tendrá:
+	- Pila de movimientos que hizo.
+	- Una tabla hash para tener los nodos ya visitados
+	- Una tabla hash para tener los nodos que haya visto ocupados
+	
+
+
+USO DE D* Lite EN EJERCICIO 2:
+
+g: distancia de un nodo al inicio
+Se updatean los de la busqueda pasada durante la actual cuando es necesario.
+Reusa información de runs previas para reducir el numero de nodos a examinar. Solo updatea los g de los nodos relevantes para encontrar el camino óptimo.
+El nodo actual le pregunta a sus vecinos el valor g. 
+El vecino miran su propio valor g, miran donde esta el nodo actual en relacion con ellos y devuelven una estimación del costo. El mínimo entre estos valores es seteado como el rhs del nodo, que es luego usado para updatear su valor g.
+Para el nodo de inicio siempre vale que g(n) = rhs(n) = 0.
+Si en un nodo g(n) = rhs(n), decimos que el nodo es CONSISTENTE.
+Cuando a un nodo le cambian el costo de una arista, la consistencia tiene que ser re establecida solo para los nodos relevantes para la ruta.
+
+Cuando un nodo se vuelve inconsistente (es decir g(n) != rhs(n)) ya sea por el costo de su predecesor o porque la arista que conecta con su predecesor cambio el costo, es metido en una Priority Queue (PQ) para re-evaluarlo.
+La prioridad de un nodo en la priority queue es siempre el mismo que su llave que es un vector de dos componentes:
+k(s) = [k1(s), k2(s)]
+donde
+k1(s) = min{g(s), rhs(s)} + h(s, goal)
+k2(s) = min{{g(s), rhs(s)}
+Las entradas de la PQ están ordenadas primero por k1 y en caso de empate por k2.
+
+SI un nodo de la PQ es consistente, es removido de ella.
+SI rhs(s) < g(s) (OVERCONSISTENT): se cambia el g para que iguale al rhs haciendo al nodo consistente. Luego se lo remueve de la PQ.
+SI rhs(s) > g(s) (UNDERCONSISTENT): el g se setea como infinito (Lo que puede hacerlo overconsistent o consistente), si es consistente, es removido de la PQ, sino su key es updated.
+La expansion de los nodos continua con el siguiente nodo en el TOP de la PQ hasta que pase:
+- El nodo objetivo es consistente
+- El nodo al top de la PQ tiene una key MAYOR o IGUAL a la key del nodo objetivo
+
+En D* Lite se usa heuristica para centrar la busqueda y reusa información de busquedas pasadas para encontrar soluciones a busquedas similares mucho más rápido que haciendo cada busqueda por separado.
+
+D* Lite busca desde el NODO DESTINO hacia el NODO INICIO por lo que sus VALORES g son estimaciones hasta el nodo destino.
+
+En caso de cambiar el peso de una arista, recalcula el shortest path desde el NODO ACTUAL hacia el objetivo SOLO recalculando los valores g que hayan cambiado (o que no hayan sido calculados antes) y que son relevantes para recalcular el shortest path.
+
+Los costos de las aristas son inicialmente 1, cambian a infinito cuando el robot se da cuenta que no es transversable.
+
+El grafo debe poder obtener facilmente sus sucesores y sus predecesores.
+Luego de que computeShortestPath() retorna, el robot puede moverse a lo largo del camino encontrado desde el nodo inicio hasta el final, siempre moviendose desde el nodo actual hacia CUALQUIER sucesor que MINIMICE c(actual, sucesor) + g(sucesor) HASTA QUE se alcance el objetivo. En caso de empate se decide aleatoriamente.
+
+Para resolver el problema de moverse en un terreno desconocido, el Main() debe mover el robot entonces a lo largo del camino determinado. El Main() además puede recalcular las prioridades de la PQ siempre que el robot se de cuenta de un cambio en el peso de la arista LUEGO de moverse.
+
+Invariante 3: LA PRIORIDAD DE UN NODO ES SIEMPRE LA MISMA QUE SU KEY
+
+A menos que las prioridades sean recalculadas, estas NO satisfaserán la Invariante 3 debido a que están basadas en heurísticas que fueron computadas respecto al nodo ANTERIOR del robot. 
+Sin embargo, el reordenamiento constante de la PQ puede ser costoso debido a que la PQ a veces contiene una gran cantidad de nodos. Es por esto que D* Lite usa un método (derivado de D*) para evitar tener que reordenar la PQ. Las heurística tiene que ser NO-NEGATIVAS y satisfacer que h(n, n') <= c*(n, n') y h(n,n'')<=h(s,s') + h(s',s'') DONDE c*(n,n') es el COSTO de un camino minimo desde n hasta n'.
+
+Luego de que el robot se haya movido desde n hasta n', donde detectó cambios en los pesos de las aristas, el primer elemento (TOP) de la PQ (osea el primer elemento de su key) decreció como máximo h(n,n') (La segunda parte de la key no se modifica ya que no depende de la heuristica). Luego, para mantener límites mínimos, D* Lite necesita restar h(n,n') desde el primer vértice de la PQ (TOP) hasta el último. Sin embargo, como h(n,n') es el mismo para todos los vértices de la PQ, el orden de estos no cambiaría si la resta no se haría. Luego, cuando nuevas prioridades son computadas, sus primeros elementos de la key deben ser sumados h(n,n') siempre que un peso de una arista cambie. 
+Si el robot se mueve de nuevo y detecta que los costos cambian, esta constante entonces debe ser aumentada. Esto se hace con la variable Km.
+Entonces, cuando nuevas prioridades son calculadas, necesitamos sumarle este Km a su primer componente de la key. De esta forma, el orden de los nodos en la PQ no tiene que ser reordenados.
+
+Luego de que computeShortestPath() haya removido un nodo u con la menor prioridad kold = U.topKey(), ahora usa CalculateKey() para computar su prioridad. 
+- SI kold < CalculateKey(u), luego reinserta el nodo removido con la prioridad calculada en CalculateKey().
+- SI kold >= CalculateKey(u), se expande el nodo u
+
+Inicializar():
+- Poner la PQ como vacia
+- km = 0
+- Para todos los nodos n de N: rhs(n) = g(n) = Infinito
+- rhs(objetivo) = 0 //Acá entonces objetivo será el único nodo inconsistente
+- PQ.insert(objetivo, calculateKey(objetivo))
+
+CalculateKey(n):
+- return [min{g(n), rhs(n)} + h(inicio, n), min{g(n), rhs(n)}]
+
+computeShortestPath():
+- mientras(PQ.TopKey() < CalculateKey(inicio) O rhs(inicio) != g(inicio))
+	- kold = PQ.TopKey()
+	- u = PQ.pop()
+	- si(kold < CalculateKey(u)):
+		- PQ.insert(u, CalculatedKey(u))
+	- sino si(g(u) > rhs(u))
+		- g(u) = rhs(u)
+		- para todo s perteneciente a Predecesores(u): UpdateVertex(s)
+	- sino:
+		- g(u) = infinito
+		- para todo s perteneciente a Predecesores(u) UNION {u}: UpdateVertex(s)
+		
+UpdateVertex(n):
+- si(n != objetivo): rhs(n) = min{c(n,n') + g(n')} para n' perteneciente a los Sucesores(n)
+- si(n pertenece a PQ): PQ.Remove(n)
+- si(g(n) != rhs(n)): PQ.Insert(n, CalculateKey(n)) // Osea si esta inconsistente
+
+Main():
+- ultimo = inicio
+- Inicializar()
+- computeShortestPath()
+- mientras(inicio != destino):
+	- //SI g(inicio) == infinito NO HAY CAMINO CONOCIDO
+	- inicio = el nodo cuyo min = min(c(inicio, n') + g(n')) con n' entre los nodos de los Sucesores(inicio)
+	- Moverse a inicio
+	- Scanear grafo para detectar cambios en los pesos de las aristas
+	- Si el costo de alguna arista cambio:
+		- km = km + h(ultimo, inicio)
+		- ultimo = inicio
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,23 @@
+Vamos a usar un Heap para almacenar colas de prioridad de forma tal que las claves estén siempre ordenadas de arriba a abajo. Osea, el padre debe tener siempre mayor prioridad que sus hijos.
+
+Un AVL es un ABB si para todo nodo interno la diferencia de altura entre sus arboles es menor o igual que 1. Busca hacer el ABB eficiente. Cada vez que inserto o elimino un dato debo reacomodar para que sigan manteniendo esta condición. Yo balanceo un arbol que EL NODO QUE ACABA DE INSERTAR lo desbalanceó. Es decir, está desbalanceado desde donde inserte hasta como mucho la raíz. 
+El elemento x fue insertado en el subarbol izquierdo del hijo izquierdo de N INS. AF.
+El elemento x fue insertado en el subarbol derecho del hijo izquierdo de N INS. ADEN.
+El elemento x fue insertado en el subarbol izquierdo del hijo derecho de N INS. ADEN.
+El elemento x fue insertado en el subarbol  del hijo derecho de N INS. AF.
+EN TODOS N ES EL NODO MÁS PROFUNDO QUE TIENE UN DESBALANCE. EL PRIMERO QUE VEO DESDE EL NODO INSERTADO HACIA ARRIBA.
+
+Un desbalance por una inserción hacia afuera se resuelve con una rotación simple que puede ser a izquierda o derecha dependiendo de dónde esté el desbalance. Una inserción hacia adentro requiere de dos Rotaciones Simples. En las inserciones afuera se rota desde el hijo del nodo desbalanceado.
+EL AVL TE GARANTIZA UN ARBOL DE ALTURA MINIMA.
+
+En estas dos estructuras NECESITO un puntero al padre SI O SI.
+
+Arboles GENERALES:
+En un arbol general cada nodo puede poseer un número indeterminado de hijos.
+Esto genera ciertas dificultades en su implementación, veamos dos enfoques:
+Opción 1: Se almacenan los punteros a los hijos en una estructura dinámica.
+Opción 2: Cada nodo tiene un puntero a su hijo MÁS IZQUIERDO y a su hermano.
+Cuanto más abstracta es la estructura, más compleja es la solución del algoritmo que lo resuelve.
+
+
+
