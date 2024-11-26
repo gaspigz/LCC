@@ -1,0 +1,48 @@
+function v = TnExt(f,a,b,c,d)
+    h = (b-a)*(d-c)/4;
+    v = h * (f(c,a)+f(c,b)+f(d,a)+f(d,b));
+endfunction
+
+function v = DobleTn(f,a,b,c,d,n,m)
+    h = (b-a)/n;
+    deff("z = fxa(y)","z=f("+string(a)+",y)");
+    deff("z = fxb(y)","z=f("+string(b)+",y)");
+    v = Tn(fxa,c(a),d(a),m)/2 + Tn(fxb,c(b),d(b),m)/2;
+    for i =1:n-1
+        xi = a + i*h;
+        deff("z = fxi(y)","z=f("+string(xi)+",y)");
+        v = v + Tn(fxi,c(xi),d(xi),m);
+    end
+    v = h*v;
+endfunction
+
+function y = cx(x)
+    y = -sqrt(2*x-x*x);
+endfunction
+
+function y = dx(x)
+    y = sqrt(2*x-x*x);
+endfunction
+
+function y = uno(x,y)
+    y = 1;
+    
+endfunction
+
+
+// CONSOLA
+
+
+-->deff("z=g(x,y)","z=sin(x+y)")
+
+-->TnExt(g,0,2,0,1)
+ ans  =
+
+   0.9459442
+
+-->exec('/home/alumno/Escritorio/Tn ext.sce', -1)
+
+-->DobleTn(uno,0,2,cx,dx,100,100)
+at line     5 of function DobleTn ( /home/alumno/Escritorio/Tn ext.sce line 10 )
+
+Undefined variable: Tn
