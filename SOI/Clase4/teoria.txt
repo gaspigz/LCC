@@ -1,0 +1,63 @@
+int fde epoll_create1();
+epoll y select son interfaces de programacion que se usan para manejar multiples conexiones de entrada
+y salida (I/O) al mismo tiempo sin bloquear el proceso. 
+
+Select es una llamada al sistema que permite a un programa esperar multiples descriptores de archivos (como sockets o archivos)
+hasta que uno o más esten listos para ser leidos, escritos o tengan un error. Como maximo 1024 FD.
+
+Epoll es una mejora, es mas eficiente que select y poll. Utiliza un modelo basado en eventos.
+
+select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout)
+Espera actividad en múltiples descriptores de archivo (lectura, escritura o errores).
+    nfds: el descriptor más alto + 1.
+    readfds, writefds, exceptfds: conjuntos de descriptores.
+    timeout: cuánto esperar (puede ser NULL para espera indefinida).
+
+FD_ZERO(fd_set *set) -> Limpia el set
+FD_SET(int fd, fd_set *set) -> Añade un FD al set
+FD_CLR(int fd, fd_set *set) -> Elimina un FD del set
+FD_ISSET(int fd, fd_set *set) -> Ve si un FD esta listo (si tiene datos para leer)
+
+int epoll_create1(int flags) -> Retorna un descriptor que representa el conjunto de eventos.
+int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event)
+    op: EPOLL_CTL_ADD, EPOLL_CTL_MOD, EPOLL_CTL_DEL
+
+int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout) -> Espera que ocurra un evento en algun descriptor
+struct epoll_event
+
+
+EJEMPLO:
+fd_set readfds;
+FD_ZERO(&readfds);           // Limpiar el conjunto
+FD_SET(server_fd, &readfds); // Agregar el socket del servidor
+FD_SET(client_fd, &readfds); // Agregar un socket de cliente
+
+int max_fd = (server_fd > client_fd) ? server_fd : client_fd;
+
+select(max_fd + 1, &readfds, NULL, NULL, NULL);
+
+if (FD_ISSET(server_fd, &readfds)) {
+    // Hay una nueva conexión entrante
+}
+if (FD_ISSET(client_fd, &readfds)) {
+    // El cliente envió datos
+}
+
+
+EJEMPLO:
+struct epoll_event ev;
+ev.events = EPOLLIN;        // Queremos que nos notifique cuando haya datos para leer
+ev.data.fd = client_fd;     // Asociamos el evento al descriptor del cliente
+
+epoll_ctl(epoll_fd, EPOLL_CTL_ADD, client_fd, &ev);
+
+// Luego en epoll_wait:
+struct epoll_event events[10];
+int n = epoll_wait(epoll_fd, events, 10, -1);
+
+for (int i = 0; i < n; i++) {
+    if (events[i].events & EPOLLIN) {
+        int fd_ready = events[i].data.fd;
+        // Hay datos disponibles para leer en fd_ready
+    }
+}

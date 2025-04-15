@@ -1,0 +1,28 @@
+a)
+0xC0000034 = (1100 0000 0000 0000 0000 0000 0011 0100)_2 =
+= (0000 0000 0000 0000 0000 0000 1101 0011) ROR 2 = 0xD3 ROR 2
+Entonces ES posible, ya que 0xD3 es un valor que ocupa 8 bits, y 2/2 = 1 ocupa 1 bit < 4 bits. Lo podemos cargar por ejemplo al registro r0 como:
+MOV r0, #0xD3, 2
+
+b)
+0x12340000 = (0001 0010 0011 0100 0000 0000 0000 0000)_2 = (0000 0000 0000 0000 0000 0100 1000 1101)_2
+Observemos que NO podemos cargar el valor anterior a un registro usando una sóla instrucción sin usar el literal pool pues la distancia entre su bit menos significativo y el más significativo es más de 8 bits. En efecto, si quisiéramos representarlo a partir de una cantidad de rotaciones ROR sobre un valor I, dada la naturaleza de la operación dicho valor I debe tener la misma cantidad de bits encendidos que el valor que se quiere representar, separados entre sí con la misma cantidad de bits NO encendidos. Por lo tanto, resulta imposible en este caso almacenar en 8 bits correspondientes al valor I, todos los bits encendidos del número que se desea representar con la condición planteada, tal que se le pueda aplicar alguna cantidad de rotaciones ROR para obtenerlo.
+Negar los bits tampoco es una opción, ya que la representación binaria de la negación del número que se quiere representar tiene más de 8 bits encendidos, que hace imposible almamcenarlo en 8 bits para rotarlo de alguna forma con ROR y almacenarlo con MVN.
+Otras operaciones del barrel shifter tampoco resultan útiles, ya que sólo se pueden utilizar luego del último operando de la instrucción si los otros operandos que toma son regisros, lo cual no nos es útil pues alguno debe ser un valor inmediato para cargar el valor deseado. Tampoco son útiles operaciones aritméticas o lógicas, pues aceptan a lo sumo un valor inmediato.
+De esta forma, concluimos que NO podemos cargar el valor dado bajo las condiciones del enunciado.
+
+c)
+0x77777777 = (0111 0111 0111 0111 0111 0111 0111 0111)_2
+En este caso, como hay más de 8 bits encendidos, no es posible representarlos tal que se pueda obtener el valor deseado a partir de aplicar una operación ROR, dadas las limitaciones explicadas en el ítem anterior.
+Sin embargo, considerando el valor negado (1000 1000 1000 1000 1000 1000 1000 1000)_2 hay exactamente 8 bits encendidos, lo cual implicaría que no nos limita esta cantidad para poder representarlo en 8 bits. Desafortunadamente, la distancia entre el bit menos significativo y el más significativo del valor negado es mayor a 8 bits, que una vez más implica, por lo discutido en b), que no es posible representarlo en 8 bits para luego obtener el valor original como un corrimiento.
+Descartados así el uso de MOV o MVN con alguna rotación ROR, concluimos que NO es posible almacenar el valor dado en un registro bajo las condiciones del enunciado.
+
+d)
+Tal como vimos en el ejercicio 5f), SÍ es posible. Por ejemplo, podemos usar para guardar el valor en el registro r0:
+MVN r0, #0
+
+e)
+0xFFFFFFFE = (1111 1111 1111 1111 1111 1111 1110)_2  NOT((0000 0000 0000 0000 0000 0000 0001)_2) =
+= NOT(0x1)
+De esta forma, concluimos que SÍ es posible. Por ejemplo, podemos guardarlo en el registro r0 con la instrucción:
+MVN r0, #1

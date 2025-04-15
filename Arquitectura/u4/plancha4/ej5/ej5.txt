@@ -1,0 +1,52 @@
+a)
+0xA400 = (0000 0000 0000 0000 1010 0100 0000 0000)_2
+Podemos entonces escribir:
+(0000 0000 0000 0000 1010 0100 0000 0000)_2 = (0000 0000 0000 0000 0000 0000 0010 1001)_2 ROR 22
+= 0x29 ROR 22
+Así podemos guardar el valor en el registro como:
+MOV r2, #0x29, 22
+
+b)
+0x3D8 = (0000 0000 0000 0000 0000 0011 1101 1000)_2
+Podemos entonces escribir:
+(0000 0000 0000 0000 0000 0011 1101 1000)_2 = (0000 0000 0000 0000 0000 0000 0111 1011)_2 ROR 29
+= 0x7B ROR 29
+Sin embargo, recordemos que las rotaciones deben ser un número par. Entonces alternativamente podemos
+escribir:
+(0000 0000 0000 0000 0000 0011 1101 1000)_2 = (0000 0000 0000 0000 0000 0000 1111 0110)_2 ROR 30
+= 0xF6 ROR 30
+Así podemos guardar el valor en el registro como:
+MOV r2, #0xF6, 30
+
+c)
+0x17400 = (0000 0000 0000 0001 0111 0100 0000 0000)_2
+Podemos entonces escribir:
+(0000 0000 0000 0001 0111 0100 0000 0000)_2 = (0000 0000 0000 0000 0000 0000 0101 1101)_2 ROR 16
+= 0x5D ROR 16
+Así podemos guardar el valor en el registro como:
+MOV r2, #0x5d, 16
+
+d)
+0x1980 = (0000 0000 0000 0000 0001 1001 1000 0000)_2
+Podemos escribir:
+(0000 0000 0000 0000 0001 1001 1000 0000)_2 = (0000 0000 0000 0000 0000 0000 0011 0011)_2 ROR 25
+= 0x33 ROR 25
+Sin embargo, dijimos que las rotaciones deben ser un número par. Escribimos en cambio:
+(0000 0000 0000 0000 0001 1001 1000 0000)_2 = (0000 0000 0000 0000 0000 0000 0110 0110)_2 ROR 26
+= 0x66 ROR 26
+Así podemos guardar el valor en el registro como:
+MOV r2, #0x66, 26
+
+e)
+0xffffff00 = (1111 1111 1111 1111 1111 1111 0000 0000)_2
+Podemos escribir:
+(1111 1111 1111 1111 1111 1111 0000 0000)_2 = NOT((0000 0000 0000 0000 0000 0000 1111 1111)_2)
+= NOT(0xFF)
+Entonces podemos guardar el valor en el registro como:
+MVN r2, #0xFF
+
+f)
+(-1)_10  = 0xffffffff = (1111 1111 1111 1111 1111 1111 1111 1111)_2 
+= NOT((0000 0000 0000 0000 0000 0000 0000 0000)_2) = NOT(0x0)
+Podemos así guardar el valor en el registro como:
+MVN r2, #0

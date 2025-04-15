@@ -1,0 +1,32 @@
+/* VAR GLOBALES */
+Numero: vector[1..N] de enteros = {todos a 0}
+Eligiendo: vector[1..N] de booleanos = {todos a false}
+
+/* codigo del hilo i*/
+
+lock(i){
+    /* Calcula el numero de turno */
+    Eligiendo[i] = true;
+    Numero[i] = 1 + max(numero[1], ...., numero[N]) // Di todos estos numeros, llego el hilo i fijate que numero te toca
+    Eligiendo[i] = false;
+    // comparo con todos los hilos que estan esperando:
+    for j in 1..N
+    {
+        /* si el hilo j esta calculando su numero, espera a que termine */
+        while(Eligiendo[j]){;}
+        (VER A PARTIR DE ACA)
+        /* si el hilo j tiene mas prioridad espera que ponga su numero a cero */
+        /* j tiene mas prioridad si su numero de turno es mas bajo que el de i */
+        while((Numero[j] != 0) && (Numero[j] < Numero[i])){ ; }
+
+    }
+
+}
+
+/* Seccion critica */
+
+unlock(i){
+    Numero[i] = 0;
+}
+
+ESE ES EL BASICO

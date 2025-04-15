@@ -1,0 +1,36 @@
+a)
+En bits 0x8C está dado por (32 bits):
+0000 0000 0000 0000 0000 0000 1000 1100
+Luego, el tercer argumento "4" nos indica que se aplica la operación ROR 4 lugares:
+1100 0000 0000 0000 0000 0000 0000 1000
+Que en hex representa:
+0xc0000008
+Resulta:
+r7 = 0xc0000008
+
+b)
+En bits 0x42 está dado por (32 bits):
+0000 0000 0000 0000 0000 0000 0100 0010
+Luego, el tercer argumento a MOV, 30, nos indica que se aplica la operación ROR 30 lugares:
+0000 0000 0000 0000 0000 0001 0000 1000
+Que en hex representa:
+0x00000108
+Resulta entonces:
+r7 = 0x00000108
+
+c)
+En bits el valor inmediato #2 se representa como (32 bits):
+0000 0000 0000 0000 0000 0000 0000 0010
+Al aplicar la operación MVN, se almacena el valor negado ("flippeando" los bits 0 -> 1 y 1 -> 0 según corresponda):
+1111 1111 1111 1111 1111 1111 1111 1101
+Entonces resulta:
+r7 = 0xfffffffd
+
+d)
+En el a) vimos la representación de binario para 32 bits de 0x8C, y el resultado de aplicar la operación ROR a éste 4 lugares.
+Ahora bien, como en este caso se usa la instrucción MVN, este resultado debe ser negado de la misma forma que describimos en el c):
+0011 1111 1111 1111 1111 1111 1111 0111
+Que en hex representa:
+0x3ffffff7
+Por lo tanto, resulta:
+r7 = 0x3ffffff7

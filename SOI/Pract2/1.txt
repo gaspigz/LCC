@@ -1,0 +1,5 @@
+El primero no pisa nunca encontrado con 0, lo que hace que no haya problemas de concurrencia,
+en casos de que un hilo se empiece a ejecutar antes de que el otro termine la operacion || del caso b.
+En el caso b esto podria pasar y se podira quedar en 0 encontrado cuando si existe el elemento.
+En el caso a esto es imposible porque solo se pone como true encontrado, no como false, la unica forma de que quede false s que nunca se haya entrado al if.
+(Es decir que el elemento no exista en A).

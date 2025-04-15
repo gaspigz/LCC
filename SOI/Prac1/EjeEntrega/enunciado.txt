@@ -1,0 +1,9 @@
+programa que reciba un argumento N tiene que tener al menos dos procesos
+dado el n tiene que imprimir de a tres numeros entre 1 y n de manera aleatoria
+
+si n es 20 tiene que imprimir por pantalla de a tres numeros
+1 3 5
+5 10 11
+no puede repetir y lso tiene que consumir a todos
+20 8 7
+...

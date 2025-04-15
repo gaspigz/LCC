@@ -1,0 +1,16 @@
+La instrucción ldr se interpreta como la *pseudo-instrucción* LDR, que almacena el valor inmediato en un grupo de valores constantes o 
+"literales" (llamado _literal-pool_) que se encuentra cercano a la instrucción. De esta forma, al compilarse el código en Assembly, 
+el ensamblador reemplaza la instrucción por una lectura desde memoria a la ubicación de la constante en el banco de literales, 
+expresando dicha posición a partir de un desfase desde el registro pc (Program Counter) actual. Estos estarán dados de la forma `ldr r1, [pc, #4]` 
+por ejemplo, donde se carga en r1 un valor almacenado en la posición de memoria dada por el valor actual del registro pc, desfasado en 4 posiciones.
+Este desfase, por supuesto, debe ser pequeño para poder hacer esta traducción, y en la documentación de ARM se especifica que es 
+*responsabilidad del programador* usar la instrucción en una posición cercana a un literal pool, tal que el desfase sea _menor a 4KB_.
+Estos literal pool (pues puede haber más de uno), según la documentación, se ubican al final de una sección, que es indicado con la directiva .end,
+ o bien, la directiva .section al comienzo de la próxima sección [1]. 
+ Estas secciones incluyen las ya utilizadas .text y .data, por lo que con nuestro uso entendemos que hay literal pools antes de cada uno de estos [2].
+Los literal-pool también pueden ser ubicados explícitamente mediante la directiva .ltorg.
+
+De forma análoga estará dado para el almacenamiento de una etiqueta, guardándose el valor de la misma (una dirección de memoria) en el literal-pool.
+
+[1] https://developer.arm.com/documentation/dui0801/l/Writing-A32-T32-Assembly-Language/Literal-pools
+[2] https://www.ic.unicamp.br/~celio/mc404-2014/docs/gnu-arm-directives.pdf

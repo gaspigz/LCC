@@ -1,0 +1,10 @@
+a) r3 se mantiene igual. Se almacena el valor en r6 en la dirección de memoria a la que apunta r3, desfasado +12. Es decir, 0x800c <- (valor r6). Se ocuparán así las direcciones 0x800c a 0x800f con los bytes de r6 (porque STR por defecto hace una copia de 32 bits).
+
+b) Se almacena el valor del byte menos significativos en r7 en la dirección a la que apunta r3, o sea, resulta 0x8000 <- ""(r7 & 0xf)"" (o sea, el byte menos significante de r7). Observar que no se modifican el resto de bytes, porque sólo se carga en memoria un byte. Luego, se añade el valor inmediato #4 a r3. Resulta entonces r3 = 0x8004.
+
+c) Se cargan los dos bytes en las direcciones de memoria que apunta r3 al registro r7. O sea, resulta (valor en 0x8000) = ""(r7 & 0xf)"" y (valor en 0x8001) = ""(r7 & 0xf0)"" (asumiendo que el procesador está funcionando en modo little-endian). El resto de los bytes de r7 se rellenan con 0s, porque se está usando el sufijo H con LDR que especifica que el valor se cargue sin signo. Luego se le suma el valor inmediato #8 a r3, es decir, resulta r3 = 0x8008.
+
+d) Se carga el valor en las 4 direcciones de memoria consecutivas a las que apunta r3+12, en el registro r12. Es decir, resulta (valor en 0x800c) = ""(r12 & 0xf)"", (valor en 0x800d) = ""(r12 & 0xf0)"", (valor en 0x800e) = ""(r12 & 0xf00)"" y (valor en 0x800f) = ""(r12 & 0xf000)"" (asumiendo el procesador está en modo little-endian). Seguido a esto, se escribe en el registro r3 su suma con el valor inmediato #12. Es decir, resulta r3 = 0x800c.
+
+
+OBS: Todas las operaciones indicadas son válidas ya que las direcciones de memoria involucradas son múltiplo de la cantidad de bytes que se cargan / almacenan en cada caso.

@@ -1,0 +1,25 @@
+int pthread_mutex_init(pthread_mutex_t *restrict mutex, consst pthread_mutexattr_t *restrict attr);
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER
+
+int pthread_mutex_lock(pthread_mutex_t *mutex); 
+int pthread_mutex_trylock(pthread_mutex_t *mutex);
+int pthread_mutex_unlock(pthread_mutex_t *mutex);
+
+int pthread_spin_lock(pthread_spinlock_t *lock); // Lo llamo antes de una seccion critica.
+int pthread_spin_trylock(pthread_spinlock_t *lock);
+int pthread_spin_unlock(pthread_spinlock_t *lock); // Lo llamo despues de desbloquear la secion critica
+
+Necesito un mutex por cada seccion critica. Lo creo desde el main.
+El trylock TRATA de lockear y sino tira -1. Si lockea algo que ya esta lockeado, en vez de quedarse esperando, retorna -1.
+Si no logro entrar a la region critica, hago otra cosa.
+
+int pthread_spin_lock(pthread_spinlock_t *lock) es un bloqueo "Busy waiting". Mantiene el thread activo y no provoca
+un cambio de contexto. Si se que voy a esperar por un periodo de tiempo muy corto, no suelto el procesador, quedate bloqueado pero 
+por muy poco tiempo: segui vivo.
+
+Tenemos basicamente UNA FLAG QUE SE ASIGNA DE MANERA ATOMICA.
+
+
+Son atomicas, internamente usan compare and swap CAS(l,a,b)
+
+

@@ -1,0 +1,11 @@
+a)
+Observemos que (1023)_10 = (0000 0000 0000 0000 0000 0011 1111 1111)_2.
+De esta forma, como el valor inmediato tiene más de 8 bits encendidos en su representación en binario, no es posible almacenarla de forma directa como un valor inmediato en ARM. 
+Una alternativa posible requiere dos instrucciones aprovechando que 1023 = 255 + 768 = 0xff + 0x300, donde ambos valores son representables como valores inmediatos en ARM:
+ADD r3, r7, #0xff
+ADD r3, r3, #0x300
+
+b)
+Por la documentación de ARM, la operación LSL sólo admite valores entre 0 a 31. Esto tiene sentido porque un shift más de 32 veces hacia la izquierda sobre un valor de 32 bits resulta en 0.
+En este sentido, aplicar LSL #32 al registro r3 lo único que logra es volverlo 0, haciendo que la instrucción simplemente guarde r12 - 0 -> r11. 
+Por lo tanto, una alternativa válida es MOV r11, r12.

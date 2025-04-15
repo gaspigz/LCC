@@ -1,0 +1,2 @@
+a) r4 = 0xCE
+b) r4 = 0xBE

@@ -1,0 +1,3 @@
+El unico componente del estado de un programa que se comparten entre los threads de un proceso
+es el heap y las variables globales. Cada uno tiene su propio stack y valores de registros.
+El stack son las variables locales.

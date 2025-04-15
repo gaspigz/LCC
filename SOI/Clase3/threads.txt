@@ -1,0 +1,17 @@
+Procesos livianos que comparten memoria entre si, no tienen que copiarse toda la memoria, solo el stack.
+Tienen tiempo de vida, corren de manera concurrente. Thread = subproceso.
+Un solo proceso puede tener varios threads (o subprocesos).
+No voy a crear mas procesos con fork, voy a usar POSIX para crear subprocesos.
+
+pthread.h
+
+pthread_create(pthread_t *thread, const pthread_attr_t *attr, void * (*start_routine) (void *), oid *arg);
+
+Esa funcion va a tomar una rutina (o funcion) en start_routine.
+
+Compilar con flag -pthread
+
+La funcion pthread_join(pthread_t thread, void **ret_val); hace que se quede esperando al thread que le mandas.
+
+Si cualquier thread llama a exit se termina TODO, por mas que sea un subproceso, porque es salir del PROCESO.
+Se puede cancelar un proceso con pthread_cancel(pthread_t pthread_id).
