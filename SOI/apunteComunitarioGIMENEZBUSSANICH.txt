@@ -1,0 +1,9 @@
+https://github.com/Sistemas-Operativos-1-DCC/Apunte-colaborativo-2025/blob/main/Apunte.md#qu%C3%A9-es-la-multiprogramaci%C3%B3n
+
+¿Qué es la multiprogramación?
+
+El objetivo de la multiprogramación es tener distintos procesos corriendo al mismo tiempo para maximizar el uso del CPU. Un proceso es ejecutado hasta que deba esperar, normalmente hasta la finalización de alguna solicitud a la entrada salida (I/O). En una computadora simple, el CPU solo espera. Toda esa espera a que termine la solicitud de entrada salida es tiempo perdido. Con multiprogramación, tratamos de usar este tiempo eficientemente.
+Varios procesos están en memoria al mismo tiempo. Cuando un proceso debe esperar, el sistema operativo saca al CPU de ese proceso y se lo da a otro. Este patrón continua.
+Cada vez que un proceso tiene que esperar, otro proceso puede tomar el uso del CPU.
+En una computadora multicore, el concepto de mantener el CPU ocupado se extiende a todos los cores del sistema.
+Debido a que el CPU es uno de los principales recursos, el scheduling y la multiproramación es central a la hora de diseñar un sistema operativo. 

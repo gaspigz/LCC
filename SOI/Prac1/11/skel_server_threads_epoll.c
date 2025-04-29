@@ -94,7 +94,7 @@ void* handle_conn(void* arg)
 	}
 }
 
-void handle_line(int csock)
+void handle_line(void* fde, int csock)
 {
 	char buf[200];
 	int rc = fd_readline(csock, buf);
@@ -109,21 +109,26 @@ void handle_line(int csock)
 		sprintf(reply, "%d\n", U++);
 		pthread_mutex_unlock(&mutex);
 		write(csock, reply, strlen(reply));
+		ev.events = EPOLLIN | EPOLLONESHOT; // EPOLLONESHOT Cuando el evento despierta un thread lo saca de los eventos monitoreados
+		ev.data.fd = csock;
+		epoll_ctl(*(int*)fde, EPOLL_CTL_MOD, csock, &ev);
 	} else if (!strcmp(buf, "CHAU")) {
 		printf("\n [SVP] Cerrando conexión...\n");
+		ev.data.fd = csock;
+		epoll_ctl(*(int*)fde, EPOLL_CTL_DEL, csock, &ev);
 		close(csock);
 	}
 }
 
 void* wait_for_clients(void* fde)
 {
-    struct epoll_event events[10];
+    struct epoll_event events[3];
     int conn_sock;
 
     socklen_t sa_len = sizeof(&sa);
 
     for(;;){
-        int cantidad_eventos_para_leer = epoll_wait(*(int*)fde, events, 10, -1);
+        int cantidad_eventos_para_leer = epoll_wait(*(int*)fde, events, 3, -1);
         for(int i = 0; i < cantidad_eventos_para_leer; i++){
             if(events[i].data.fd == lsock){
                 conn_sock = accept(lsock, (struct sockaddr *)&sa, &sa_len);
@@ -132,7 +137,7 @@ void* wait_for_clients(void* fde)
                     exit(EXIT_FAILURE);
                 }
 
-                ev.events = EPOLLIN | EPOLLET;
+                ev.events = EPOLLIN | EPOLLONESHOT; // EPOLLONESHOT Cuando el evento despierta un thread lo saca de los eventos monitoreados
                 ev.data.fd = conn_sock;
 
                 if (epoll_ctl(*(int*)fde, EPOLL_CTL_ADD, conn_sock, &ev) == -1){
@@ -141,7 +146,7 @@ void* wait_for_clients(void* fde)
                 }
 
             }else{
-                handle_line(events[i].data.fd);
+                handle_line(fde, events[i].data.fd);
             }
         }
     }

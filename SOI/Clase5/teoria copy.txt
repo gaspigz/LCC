@@ -1,0 +1,85 @@
+Las estrcuturas con las que trabajemos deben ser Thread-safe, esto quiere decir que garantizan que no hayan raise condition al ejecutarse en 
+múltiples threads concurrentes. Por ello en vez de hacer un Stack hacemos un CStack (Concurrente).
+
+Un stack concurrente va a tener una Stack primitiva (sin proteger), con un lock.
+
+Normalmente tenemos procesos productores y consumidores que escriben y leen de un buffer.
+¿Que pasa si se quiere producir cuando el buffer esta lleno o leer cuando esta vacio? se bloquean.
+Hay distintas estrategias para solucionar esto, pero la idea de las Variables de Condicion es 
+suspender a los procesos (productores por ejemplo) mientras el buffer este lleno.
+Las variables de condicion siempre van asociadas a un lock. 
+Si esta lleno el buffer SUELTO EL LOCK QUE TENGO y espero, pero lo dejo para que otro lo pueda usar.
+El productor por ejemplo puede disparar un signal a los consumidores de que ya hay algo para consumir. El 
+consumidor puede despertar al menos a un productor y decirle "Ya pueden producir". El broadcast despierta a todos a competir.
+
+int pthread_cond_signal(pthread_cond_t *cond);
+int pthread_cond_broadcast(pthread_cond_t *cond);
+
+pthread_cond_t cond_hay_lugar = PTHREAD_COND_INITIALIZER;
+
+Tambien se puede hacer con un timeout con pthread_cond_timedwait.
+
+int pthread_cond_wait(pthread_cond_t *restrict cond, pthread_mutex_t *restrict pthread_mutex_t);
+
+depositar(v):
+
+tomar(lock);
+while(isFull()){ // SIEMPRE DEBE HABER UN WHILE
+    cond_wait(non_full_cond, lock); // Espero a que alguien me diga "che hay lugar en el buffer"
+}
+staack_push(v);
+cond_signal(non_empty_cond)
+soltar(lock)
+
+
+tomar()
+tomar(lock)
+while(isFull()){ // SIEMPRE DEBE HABER UN WHILE
+    cond_wait(non_empty_cond, lock); // Si esta vacio espero que alguien me mande la señal de que el buffer no esta vacio y suelta el lock (lo hace solo y despues lo agarra solo también)
+} // no se va a despertar hasta que no este suelto el lock.
+// Los while GARANTIZAN QUE LA CONDICION SEA VERDADERA.
+v = stack_pop();
+cond_signal(non_full_cond);
+soltar(lock);
+return v;
+
+Un semaforo es otra variable de condicion que representa la idea de un contador (es un objeto concurrente), con 
+dos operaciones atomicas: down y up (incrementa y disminuye en 1, levanta la barrera y la baja).
+
+Invariante: S = s0 + #(up) - #(down)
+Nunca vale negativo. Si el semaforo vale 0 y el semaforo hace down, me quedo bloqueado.
+Podemos representar un mutex como un semaforo binario. Son mucho más poderosos que los mutex. Puedo
+implementar variables de condición con los semáforos.
+
+El semáforo solo bloquea si Lugares Libres es 0 o si Ocupados es 0.
+
+Un producer/consumer con semáforos (dos semáforos): Lugares (libres) (el tamaño del buffer) y Ocupados.
+
+depositar(v).
+Lugares.down()
+conc_stack_push(v)
+Ocupados.up()
+
+tomar():
+Ocupados.down()
+t = conc_stack_pop()
+Lugares.up()
+return t
+
+Funciones de semáforos:
+
+#include <semaphore.h>
+
+int sem_init(sem_t *sem, int pshared, unsigned int value);
+
+int sem_post(sem_t *sem); // UP
+
+int sem_wait(sem_t *sem); // DOWN
+
+int sem_trywait(sem_t *sem);
+
+int sem_timedwait(sem_t *sem, const struct timespec *abs_timeout);
+
+int sem_destroy(sem_t *sem);
+
+Link with -pthread.
