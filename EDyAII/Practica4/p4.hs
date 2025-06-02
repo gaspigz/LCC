@@ -77,9 +77,13 @@ splitBST (N l a r) t
         in ((N l' a l), r')
 
 join :: Ord a ⇒ BST a → BST a → BST a
+
+-- Uso como raiz
+
 join E E = E
 join l E = l
 join E r = r
-join t1@(N l a r) t2@(N l' a' r')
-    | maximo t1 > a' =
+join t1@(N l a r) t2@(N l' a' r') =
+    let (L, R) = splitBST t2 a
+    in (N (join l L) a (join r R))
     

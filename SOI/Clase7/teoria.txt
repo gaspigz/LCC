@@ -1,0 +1,4 @@
+OpenMP: libreria con los mismos conceptos de mutex, etc pero con sintaxis
+sugar. Es muy facil lanzar threads, sincronizar, etc.
+
+Comparten variables. Hay privadas y públicas.

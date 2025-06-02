@@ -1,0 +1,113 @@
+Erlang es un lenguaje de programación funcional, concurrente y orientado a la creación de sistemas distribuidos y tolerantes a fallos. Fue desarrollado por Ericsson en los años 80 para soportar aplicaciones de telecomunicaciones que requieren alta disponibilidad (por ejemplo, 99.999% de uptime, lo que equivale a unos pocos minutos de caída al año).
+Características principales:
+Funcional: Erlang es un lenguaje funcional. Eso significa que usa funciones puras (sin efectos secundarios) y estructuras inmutables. No hay variables tradicionales; los valores no cambian una vez asignados.
+
+Concorrencia masiva: Erlang permite crear miles o millones de procesos ligeros (llamados procesos de Erlang) que pueden ejecutarse en paralelo. Esto lo hace ideal para servidores que manejan muchas conexiones simultáneas, como servidores de chat, telecomunicaciones o juegos en línea.
+
+Mensajería entre procesos: Los procesos en Erlang no comparten memoria. Se comunican entre sí mediante el paso de mensajes. Esto hace que sea fácil escribir programas concurrentes sin preocuparse por bloqueos o condiciones de carrera.
+
+Distribuido: Erlang está diseñado para ejecutarse en múltiples nodos (máquinas) en red, como si fueran uno solo. Puedes distribuir tu aplicación en varios servidores sin grandes complicaciones.
+
+Tolerancia a fallos: Uno de los pilares de Erlang. Si un proceso falla, no afecta a los demás. Puedes organizar tus programas para que un proceso supervise a otros y los reinicie si fallan. Esto es parte del patrón de diseño “let it crash” (deja que se caiga).
+
+Hot code swapping: Puedes actualizar el código de un sistema en funcionamiento sin detenerlo. Esto es clave en sistemas que necesitan alta disponibilidad.
+
+Ejemplo:
+-module(hola).
+-export([saludo/0]).
+
+saludo() ->
+    io:format("Hola, mundo~n").
+
+
+-module(factorial).
+-export([fact/1]).
+% Función factorial por pattern
+matching
+fact(0) -> 1;
+fact(N) -> N * fact(N-1).
+
+COMPILACIÓN:
+c(factorial).
+{ok,factorial}
+2> factorial:fact(5).
+120
+
+Características de Erlang
+
+● Lenguaje Funcional NO PURO (No tiene transparencia referencial).
+● Tiene tipado dinámico (como Python)
+● Las funciones se definen usando recursión y pattern matching (como en Haskell)
+● Es un lenguaje orientado a sistemas industriales a gran escala con requerimientos de tiempo real.
+● Se basa en dos principios que ya hemos visto: la concurrencia y fiabilidad.
+● Tiene además la posibilidad de ejecutar transparentemente de forma distribuido
+● Utiliza una máquina virtual!
+
+En un lenguaje funcional NO PURO ya que el Modelo de Actores en el que está basado no permite transparencia referencial. Por ejemplo, la transparencia
+referencial se rompe cuando una función recibe un mensaje, y el resultado de esta cambia según el mensaje que recibe. Es decir, el resultado de la función puede
+cambiar aún tomando los mismos argumentos de entrada. Observar que los mensajes no son argumentos de la función.
+
+min([Hd]) -> Hd;
+min([Hd|Tl]) ->
+Rest = min(Tl),
+if
+    Hd <= Rest -> Hd;
+    true -> Rest
+end.
+
+El modelo de actores
+Para abordar la concurrencia y la comunicación entre procesos Erlang se basa
+en un modelo de actores. Es un paradigma de la programación concurrente
+en el que los actores son entidades independientes que se comunican entre si
+enviando mensajes. Cada actor tiene su propio estado interno y procesa los
+mensajes que recibe entre otros actores.
+
+Los actores se implementan como procesos ligeros y se denominan procesos Erlang.
+Cada proceso Erlang tiene su propio espacio de memoria aislado y se comunica con
+otros procesos mediante el envío y recepción de mensajes.
+
+Al recibir un mensaje, un actor puede:
+● Crear otros actores usando spawn/3
+● Tomar decisiones locales: cada proceso tiene la responsabilidad de manejar su propio estado interno y decidir cómo 
+procesar los mensajes que recibe, sin necesidad de coordinar explícitamente con otros procesos.
+● Enviar mensajes a otros actores (con send)
+● Responder al mensaje recibido
+
+Primitivas de concurrencia
+● Spawn: Crea un nuevo proceso
+● Send: Envia un mensaje
+● Receive: Recibe un mensaje
+
+Spawn/3 toma 3 argumentos, nombre de un Módulo, nombre del método a ejecutar
+y una lista de argumentos para ese método. En caso de que querramos lanzar
+un nuevo proceso invocando al metodo loop dentro del modulo echo sin argumentos:
+spawn(echo,loop,[])
+Como resultado retorna un identificador de procesos.
+
+El identificador de un proceso está compuesto por <Node.Serial.ID>
+Node es el número de nodo (0 es el local y un número arbitrario para un nodo remoto)
+Serial son los primeros 15 bits del numero de proceso
+ID son los bits 16-18 del numero de proceso
+
+Send:
+La primitiva de envío de mensaje se escribe usando un símbolo de exclamación
+
+PID ! Mensaje
+
+Por ejemplo podemos enviar el mensaje a un proceso de identificador Servidor:
+
+Servidor ! {ok, 1234}
+
+Receive:
+La primitiva de recepción de mensajes usa pattern matching con la siguiente forma:
+
+receive
+    Mensaje1 -> ...;
+    Mensaje2 -> ...;
+    ... .;
+    Mensajen -> ... .
+end.
+
+Se queda esperando que llegue un mensaje y cuando llega busca el patrón
+que coincida con el mensaje, luego ejecuta el código correspondiente.
+

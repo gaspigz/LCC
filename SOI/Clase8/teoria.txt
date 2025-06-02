@@ -1,0 +1,56 @@
+Computación Distribuida
+
+Colección de computadoras autónomas conectadas a través de una red y un middleware de distribución. Es un modelo que no usa memoria compartida.
+Permite que las computadoras coordinen sus actividades y comparten los recursos del sistema. Es una forma de acelerar el computo o procesar muchos datos
+de forma rápida.
+
+Un cluster puede tener 100 computadoras conectadas en red y el usuario puede decidir cuantas necesita, con cuantos recursos, etc. Le pasa esos requerimientos
+al middleware y este (como un schedulet) le asigna los mismos. Es transparente para el usuario, el solo envía los requerimientos.
+
+Nota: Un middleware es una capa de software por encima del SO que brinda ciertas herramientas.
+
+En computacion distribuida cada procesador tiene su memoria privada propia (memoria distribuida). La información se intercambia pasando mensajes entre
+los procesadores.
+Algunas de sus características son:
+    -Altamente eficiente
+
+    -Tolerancia a fallas
+
+    -Escalabilidad
+
+    -Alta disponibilidad
+
+Si se cae un nodo (una computadora) la idea es que no ocurra nada malo. Erlang tiene tolerancia al fallo, permite detectar que un proceso se cayó y relanzarlo.
+
+MPI es una librería de paso de mensajes de C estandarizada y portátil desarrollada para computación distribuida paralela.
+Permite a los usuarios crear aplicaciones paralelas mediante la creación de procesos paralelos y el intercambio de información entre estos procesos. Los procesos 
+no comparten memoria.
+
+https://brandonrozek.com/blog/openmpi-fedora/
+sudo dnf install openmpi openmpi-devel
+
+mpicc program_name.c -o binary_file
+
+mpirun -np [number of processes] ./binary_file
+
+OpenMP: Computacion paralela
+MPI: Computacion distribuida
+
+MPI_COMM_WORLD: Comunicador. La forma que tienen los procesos para saber que tipo de comunicación tiene.
+
+Hay un tipo de dato en MPI por cada tipo de dato basico de C: MPI_INT -> int, MPI_SHORT -> short, etc.
+
+Rutinas de comunicación básicas:
+MPI_Send: envía mensajes a otro proceso. Es una llamada bloqueante a diferencia de MPI_ISend (envía el mensaje y sigue), el emisor se queda bloqueado hasta que el
+receptor recive el mensaje.
+int MPI_Send(const void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm);
+
+MPI_Recv: También es bloqueante. Se bloquea el receptor hasta que se completa la transferencia de datos.
+int MPI_Recv(void* buf, COMPLETAR)
+
+
+MPI_Barrirer(MPI_COMM_WORLD): Espera hasta que todos los procesos del world lleguen a  este punto. Ningún proceso avanza hasta que ocurra eso.
+
+Movimiento de datos:
+
+MPI_Bcast: broadcast de datos desde el proceso pasado como argumento a todos los procesos del comunicador.

@@ -1,0 +1,32 @@
+La semántica MESA (o Mesa-style semantics) es un tipo de comportamiento de las variables de condición en 
+programación concurrente, especialmente en sistemas con threads, como los de POSIX 
+(pthread_cond_wait, pthread_cond_signal).
+
+Definición de Semántica MESA:
+
+Cuando un hilo es despertado (por signal o broadcast), no puede asumir que la condición que 
+estaba esperando aún es verdadera. El hilo simplemente recibe una notificación, pero debe volver a 
+verificar la condición por sí mismo.
+
+Por eso, se usa siempre un while, no un if, al esperar:
+
+pthread_mutex_lock(&lk);
+while (!condicion_valida) {
+    pthread_cond_wait(&cv, &lk);
+}
+// condición ahora es verdadera
+pthread_mutex_unlock(&lk);
+
+
+¿Por qué se necesita este while?
+
+Porque la condición pudo cambiar entre que se hace signal() y el hilo se despierta y vuelve a adquirir el 
+mutex. Otro hilo pudo haber tomado el recurso antes.
+
+Resumen
+
+La semántica MESA es la más usada en librerías reales (como POSIX y Java). 
+Siempre se debe volver a verificar la condición al despertar, porque no hay garantías de que siga 
+siendo cierta.
+
+¿Querés un ejemplo en código que compare MESA con cómo sería Hoare?

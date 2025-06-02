@@ -140,3 +140,33 @@ aaGrandeValidoFix = N R 20
         (N R 70
             (N B 60 E E)
             (N B 80 E E)))
+
+
+member :: Ord a => a -> AATree a -> Bool
+member a E = False
+member x (N _ a l r)
+    | x < a = member x l
+    | x > a = member x r
+    | otherwise = True
+
+ins :: Ord a => a -> AATree a -> AATree a
+ins x E = N R x E E
+ins x (N c y l r)
+    | x < y = split (skew (N c y (ins x l) r))
+    | x > y = split (skew (N c y l (ins x r)))
+    | otherwise = (N c y l r)
+
+skew :: Ord a => AATree a -> AATree a
+skew (N B y (N R x a b) c) = N B x a (N R y b c)
+skew t = t
+
+split :: Ord a => AATree a -> AATree a
+split (N B x a (N R y b (N R z c d))) = (N R y (N B x a b) (N B z c d))
+split t = t
+
+makeBlack :: Ord a => AATree a -> AATree a
+makeBlack (N _ l x r) = N B l x r
+makeBlack t = t
+
+insert :: Ord a => a -> AATree a -> AATree a
+insert a t = makeBlack (ins a t)
